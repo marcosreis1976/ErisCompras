@@ -92,7 +92,7 @@ const FixedHeaderTable = Loadable(lazy(() => import('../views/tables/FixedHeader
 const CollapsibleTable = Loadable(lazy(() => import('../views/tables/CollapsibleTable')));
 const SearchTable = Loadable(lazy(() => import('../views/tables/SearchTable')));
 
-const ListBuy = Loadable(lazy(() => import('../views/buy/listBuy')));
+const ListBuy = Loadable(lazy(() => import('../views/buy')));
 
 // widget
 const WidgetCards = Loadable(lazy(() => import('../views/widgets/cards/WidgetCards')));
