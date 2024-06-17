@@ -93,6 +93,7 @@ const CollapsibleTable = Loadable(lazy(() => import('../views/tables/Collapsible
 const SearchTable = Loadable(lazy(() => import('../views/tables/SearchTable')));
 
 const ListBuy = Loadable(lazy(() => import('../views/buy')));
+const OrderBuy = Loadable(lazy(() => import('../views/orderBuy')));
 
 // widget
 const WidgetCards = Loadable(lazy(() => import('../views/widgets/cards/WidgetCards')));
@@ -166,6 +167,7 @@ const Router = [
       { path: '/tables/collapsible', element: <CollapsibleTable /> },
       { path: '/tables/search', element: <SearchTable /> },
       { path: '/pedidos/painelcompras', element: <ListBuy /> },
+      { path: '/pedidos/ordemcompras', element: <OrderBuy /> },
       { path: '/forms/form-elements/autocomplete', element: <MuiAutoComplete /> },
       { path: '/forms/form-elements/button', element: <MuiButton /> },
       { path: '/forms/form-elements/checkbox', element: <MuiCheckbox /> },

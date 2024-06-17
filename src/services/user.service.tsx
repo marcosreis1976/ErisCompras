@@ -29,6 +29,9 @@ export const getListSummary= (Affiliated:Number, user: String) =>{
   return axios.get(API_URL + `/Painel/PainelPedidosResumo?codigoFilial=${Affiliated}&usuario=${user}`);
 }
 
+export const getConsultOCM = (data:any) =>{
+  return axios.get(API_URL + `/OC/ConsultaOCS?${data}`)
+}
 
 export const getOrderPanel = (data:any) =>{
   return axios.get(API_URL + `/Painel/PainelPedidos?${data}`);

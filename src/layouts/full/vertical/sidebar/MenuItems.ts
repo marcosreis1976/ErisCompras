@@ -101,7 +101,7 @@ const Menuitems: MenuitemsType[] = [
         id: uniqueId(),
         title: 'Ordem de Compra',
         icon: IconPoint,
-        href: '/pedidos/painelcomprass',
+        href: '/pedidos/ordemcompras',
       },
     ],
   },

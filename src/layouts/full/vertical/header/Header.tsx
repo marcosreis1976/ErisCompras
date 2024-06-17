@@ -20,10 +20,10 @@ const Header = () => {
 
 
   useEffect(() => {
-    if(location.pathname == '/pedidos/listapedidos'){
-      setPage('Painel de Pedidos')
+    if(location.pathname == '/pedidos/ordemcompras'){
+      setPage('Ordem de Compras')
     }
-
+console.log('oi')
   });
 
 
