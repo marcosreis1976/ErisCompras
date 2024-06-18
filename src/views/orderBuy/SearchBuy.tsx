@@ -97,7 +97,7 @@ const SearchBuy = (props:any) => {
     const [dataPage, setDataPage] = useState(answer);
     const [totalPages, setTotalPages] = useState(1);
     const [parameter, setParameter] = useState('');
-    const [page] = useState(0);
+    const [page, setPage] = useState(0);
     const [valueRadio, setValueRadio] = useState([false, false, false])
 
     const mudarMensagem = () => {
@@ -234,14 +234,15 @@ const SearchBuy = (props:any) => {
 
 
 
-
-
-        parameter = parameter + `&numeroPagina=1&tamanhoPagina=10&usuario=${dataPage.user?.userName}`
+        setPage(1)
         setParameter(parameter)
+        parameter = parameter + `&numeroPagina=1&tamanhoPagina=7&usuario=${dataPage.user?.userName}`
+        
         getConsultOCM(parameter).then((response)=>{
           console.log(response)
           setValueTable(response.data)
           setLoading(false)
+          setTotalPages(Math.ceil(response.data[0].totalRegistros / 7));
         },
         (error) => {
           setLoading(false)
@@ -299,17 +300,14 @@ const SearchBuy = (props:any) => {
             setOper(oper)
 
             let obj = [{
-              index: 0,
-              value: 'Compra Centralizada'
-            },{
               index: 1,
-              value: "Encomenda"
+              value: "Encomenda Compras"
             },{
               index: 2,
-              value: "Compras"
+              value: "Remanejamento de Estoque"
             },{
               index: 3,
-              value: "Estoque"
+              value: "Compra Centralizada"
             }]
             setObj(obj)
             let prod = [{
@@ -342,22 +340,26 @@ const SearchBuy = (props:any) => {
 
 
       const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+
         let newPage = value
         event;
+        console.log(event)
+        setPage(value)
         // setErros(false)
         // setSearch(true)
         // setCurrentPage(newPage);
     
-        let answer = parameter + `&numeroPagina=${newPage}&tamanhoPagina=7&usuario=${dataPage.user?.userName}`
+        let answer = parameter + `&numeroPagina=${value}&tamanhoPagina=7&usuario=${dataPage.user?.userName}`
         getConsultOCM(answer).then(
           (response) => {
             response.data.map((value: any) => {
-              let year = value.datahoraCadastro.substring(0, 4);
-              let month = value.datahoraCadastro.substring(5, 7);
-              let day = value.datahoraCadastro.substring(8, 10);
-              let hours = value.datahoraCadastro.substring(11, 16);
+     
+              let year = value.dataPedido.substring(0, 4);
+              let month = value.dataPedido.substring(5, 7);
+              let day = value.dataPedido.substring(8, 10);
+              let hours = value.dataPedido.substring(11, 16);
               let data = `${day}/${month}/${year} ${hours}`
-              value.datahoraCadastro = data
+              value.dataPedido = data
             })
             setValueTable(response.data)
             // setAmount(response.data[0].totalRegistros)
@@ -481,7 +483,7 @@ return (
                       fullWidth
                       variant="outlined"
                     >
-                      <MenuItem value="-1">{nameStatus[3]}</MenuItem>
+                      <MenuItem value="-1">{nameStatus[3]}</MenuItem> 
                       {obj.map((option:any) => (
                          <MenuItem key={option.index} value={option.index}>
                          {option.value}
@@ -671,7 +673,16 @@ Limpar
         <TableFooter>
         </TableFooter>
       </Table>
-      <Pagination style={{ position: 'relative', top: '2px', marginBottom: '10px' }} count={totalPages} page={page} onChange={handlePageChange} color="primary" />
+      <Pagination style={{ position: 'relative', top: '2px', marginBottom: '10px' }}
+      count={totalPages} 
+      page={page} 
+      onChange={handlePageChange}
+      boundaryCount={2} // exibe sempre 2 botões de cada lado do atual
+      showFirstButton
+      showLastButton
+      siblingCount={2} // exibe sempre 2 botões de cada lado do atual
+      
+      color="primary" /> <p>Página atual: {page}</p>
 
     </>
     : valueTable.length == 0 && totalPages != 1?
@@ -686,50 +697,6 @@ Limpar
 </TableContainer>
 </BlankCard>
 
-
-    {/*
-  <Grid item xs={12} sm={2}>
- <CustomFormLabel htmlFor="standard-select-currency">Produto</CustomFormLabel>
-
- 
-  </Grid>
-  <Grid item xs={12} sm={2}>
-    </Grid>
-  <Grid item xs={12} sm={2}>
-<Button
-variant="contained"
-color="primary"
-type="submit"
-style={{position: 'relative', top: '55px', height: '43px', width: '120px'}}
-
->
-Pesquisar
-</Button>
-</Grid>
-
-<Grid item xs={12} sm={2}>
-<Button
-variant="contained"
-color="secondary"
-type="submit"
-style={{position: 'relative', top: '55px', height: '43px', width: '100px'}}
-
->
-Novo
-</Button>
-</Grid>
-<Grid item xs={12} sm={2}>
-<Button
-variant="contained"
-color="error"
-type="submit"
-style={{position: 'relative', top: '55px', height: '43px', width: '100px'}}
-
->
-Limpar
-</Button>
-</Grid>
-*/}
  </Grid> 
   </>
 
