@@ -7,20 +7,57 @@ import {
   MenuItem,
   Button,
   Radio,
-  FormControlLabel
+  FormControlLabel,
+  Paper, 
+  Modal,
+  Box,Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, 
 } from '@mui/material'
-import {getAffiliated, getListSellers, getListTransporters, itensRequest, itensStock, getOrderPanel, getListSummary} from "../../services/user.service"
+import {getAffiliated,  itensRequest, itensStock, getCFOP, getNameFornecedor, geFornecedor} from "../../services/user.service"
 import CustomCheckbox from 'src/components/forms/theme-elements/CustomCheckbox';
+
+
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 600,
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
+};
+
+const formatCPF = (value:any) => {
+  return value
+    .replace(/\D/g, '') // Remove non-digits
+    .replace(/(\d{3})(\d)/, '$1.$2') // Add dot after 3 digits
+    .replace(/(\d{3})(\d)/, '$1.$2') // Add dot after the next 3 digits
+    .replace(/(\d{3})(\d{1,2})$/, '$1-$2') // Add dash before the last 2 digits
+    .substring(0, 14); // Limit length to 14 characters
+};
+
+const formatCNPJ = (value:any) => {
+  return value
+    .replace(/\D/g, '') // Remove non-digits
+    .replace(/(\d{2})(\d)/, '$1.$2') // Add dot after 2 digits
+    .replace(/(\d{3})(\d)/, '$1.$2') // Add dot after the next 3 digits
+    .replace(/(\d{3})(\d)/, '$1/$2') // Add slash after the next 3 digits
+    .replace(/(\d{4})(\d{1,2})$/, '$1-$2') // Add dash before the last 2 digits
+    .substring(0, 18); // Limit length to 18 characters
+};
+
 
 const RegisterBuy = () => {
     const [nameTemplate, setNameTemplate] = useState<any>(-1);
     const [nameStatus] = useState(['Sem Filial', 'Sem Status', 'Sem CFOP', 'Sem Contato', 'Sem Transportadora', 'Sem Objetivo Transferência'])
     const [nameTitle, setNameTitle] = useState<any>('');
+    const [nameFornecedor, setNameFornecedor] = useState<any>('');
     const [nameFilial, setNameFilial] = useState<any>(-1);
     const [nameStatuss, setNameStatuss] = useState<any>(-1);
     const [nameOper, setNameOper] = useState<any>(-1);
     const [nameObj, setNameObj] = useState<any>(-1);
-    const [nameProd, setNameProd] = useState<any>(-1);
+    const [nameCPFCNPJ, setNameCPFCNPJ] = useState<any>('')
     const [affiliated, setAffiliated] = useState([]);
     const [status, setStatus] = useState<any>([]);
     const [oper, setOper] = useState<any>([]);
@@ -28,10 +65,27 @@ const RegisterBuy = () => {
     const [prod, setProd] = useState<any>([]);
     const [requests, setRequest] = useState([]);
     const [stocks, setStocks] = useState([]);
+    const [open, setOpen] = useState(false);
+    const [valueModal, setValueModal] = useState<any>([]);
 
     const handleChangeStatus = (event: React.ChangeEvent<HTMLInputElement>) => {
         setNameStatuss(event.target.value);
       }
+
+    const handleChangeCPFCNPJ = (event: React.ChangeEvent<HTMLInputElement>) =>{
+      let inputValue = event.target.value;
+      if (inputValue.length <= 14) {
+        inputValue = formatCPF(inputValue);
+      } else {
+        inputValue = formatCNPJ(inputValue);
+      }
+
+      setNameCPFCNPJ(inputValue);
+    }  
+
+    const handleChangeFornecedor = (event: React.ChangeEvent<HTMLInputElement>) => {
+      setNameFornecedor(event.target.value);
+    } 
 
       const handleChangeOper = (event: React.ChangeEvent<HTMLInputElement>) => {
         setNameOper(event.target.value);
@@ -39,6 +93,22 @@ const RegisterBuy = () => {
       const handleChangeObj = (event: React.ChangeEvent<HTMLInputElement>) => {
         setNameObj(event.target.value);
       }
+
+      const handleOpen = () => {
+        let parameter = `?nomeFornecedor=${nameFornecedor}`
+        console.log(nameFornecedor)
+        nameFornecedor == '' ? 'aparecer mensagem' : (
+          
+          getNameFornecedor(parameter).then((response)=>{
+            setOpen(true);
+            setValueModal(response.data)
+          })
+
+        
+
+        
+      )}
+      const handleClose = () => setOpen(false);
   
       
     
@@ -75,20 +145,11 @@ const RegisterBuy = () => {
             }]
             setStatus(status)
 
-            let oper = [{
-              index: 0,
-              value: 'Compra'
-            },{
-              index: 1,
-              value: "Consignação"
-            },{
-              index: 2,
-              value: "Transferência"
-            },{
-              index: 3,
-              value: "Devolução"
-            }]
-            setOper(oper)
+            getCFOP().then((response)=>{
+              console.log(response.data)
+              setOper(response.data)
+            })
+            
 
             let obj = [{
               index: 0,
@@ -124,7 +185,7 @@ const RegisterBuy = () => {
 
 return (
 <>
-<Grid container spacing={1} style={{position: 'relative', top: '-40px', marginBottom: '-60px'}}>
+<Grid container spacing={1} style={{position: 'relative', top: '-50px' }}>
 <Grid item xs={12} sm={3.5}>
  <CustomFormLabel htmlFor="standard-select-currency">Filial</CustomFormLabel>
 
@@ -174,8 +235,8 @@ return (
                     >
                       <MenuItem value="-1">{nameStatus[2]}</MenuItem>
                       {oper.map((option:any) => (
-                        <MenuItem key={option.index} value={option.index}>
-                          {option.value}
+                        <MenuItem key={option.cfopId} value={option.cfopId}>
+                          {option.cfopNome}
                         </MenuItem>
                       ))}
                     </CustomSelect>
@@ -186,7 +247,7 @@ return (
 
  
  </Grid>
-  <Grid container spacing={1} style={{position: 'relative', marginBottom: '-20px'}}>
+  <Grid container spacing={1} style={{position: 'relative',top: '-50px'}}>
   <Grid item xs={12} sm={2}>
  <CustomFormLabel htmlFor="standard-select-currency">Status</CustomFormLabel>
 
@@ -216,12 +277,12 @@ return (
   <Grid item xs={12} sm={3} >
  <CustomFormLabel htmlFor="standard-select-currency">Fornecedor</CustomFormLabel>
 
- <CustomTextField id="password" value={nameTitle} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
+ <CustomTextField id="password" value={nameFornecedor} onChange={handleChangeFornecedor} type="text" variant="outlined" fullWidth />
   </Grid>
   <Grid item xs={12} sm={2.5}>
  <CustomFormLabel htmlFor="standard-select-currency">CNPJ/CPF</CustomFormLabel>
 
-<CustomTextField id="password" value={nameTitle} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
+<CustomTextField id="password" value={nameCPFCNPJ} onChange={handleChangeCPFCNPJ} type="text" variant="outlined" fullWidth />
 
   </Grid>
 
@@ -231,7 +292,7 @@ variant="contained"
 color="primary"
 type="submit"
 style={{position: 'relative', top: '55px', height: '43px', width: '100px'}}
-
+onClick={handleOpen}
 >
 Buscar
 </Button>
@@ -249,7 +310,7 @@ Cadastrar
 </Grid> 
 
 
- <Grid container spacing={1} style={{position: 'relative', marginBottom: '-10px'}}>
+ <Grid container spacing={1} style={{position: 'relative', top: '-50px'}}>
  <Grid item xs={12} sm={2}>
  <CustomFormLabel htmlFor="standard-select-currency">Contato</CustomFormLabel>
 
@@ -301,7 +362,7 @@ Cadastrar
   </Grid>
  </Grid> 
 
- <Grid container spacing={1} style={{position: 'relative', marginBottom: '30px'}}>
+ <Grid container spacing={1} style={{position: 'relative', top: '-50px'}}>
  <Grid item xs={12} sm={4} style={{position: 'relative', marginTop: '0px', border: '1px solid lightgray', height: '77px', top: '30px', borderRadius: '10px'}}>
  <CustomFormLabel style={{position: 'relative', textAlign: 'center', top: '-25px'}} htmlFor="standard-select-currency">Resp. Frete</CustomFormLabel>
 <span style={{position: 'relative', width: '100%', left: '10%'}}>
@@ -385,6 +446,40 @@ Cadastrar
                </Button>
     </Grid>
 
+    <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="modal-title"
+        aria-describedby="modal-description"
+      >
+        <Box sx={style}>
+          <Typography id="modal-title" variant="h6" component="h2">
+            Fornecedores
+          </Typography>
+          <TableContainer component={Paper}>
+            <Table sx={{ minWidth: 350 }} aria-label="simple table">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Nome</TableCell>
+                  <TableCell align="center">CNPJ - CPF</TableCell>
+                  <TableCell align="center">Código</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {valueModal.map((row:any, index:any) => (
+                  <TableRow key={index}>
+                    <TableCell component="th" scope="row">
+                      {row.nomeTerceiro}
+                    </TableCell>
+                    <TableCell align="center">{row.cnpjCpf}</TableCell>
+                    <TableCell align="center">{row.codigoTerceiro}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+      </Modal>
   
   </>
 

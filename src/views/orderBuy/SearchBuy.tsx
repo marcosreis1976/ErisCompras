@@ -236,7 +236,7 @@ const SearchBuy = (props:any) => {
 
         setPage(1)
         setParameter(parameter)
-        parameter = parameter + `&numeroPagina=1&tamanhoPagina=7&usuario=${dataPage.user?.userName}`
+        parameter = parameter + `&numeroPagina=1&tamanhoPagina=5&usuario=${dataPage.user?.userName}`
         
         getConsultOCM(parameter).then((response)=>{
           console.log(response)
@@ -349,7 +349,7 @@ const SearchBuy = (props:any) => {
         // setSearch(true)
         // setCurrentPage(newPage);
     
-        let answer = parameter + `&numeroPagina=${value}&tamanhoPagina=7&usuario=${dataPage.user?.userName}`
+        let answer = parameter + `&numeroPagina=${value}&tamanhoPagina=5&usuario=${dataPage.user?.userName}`
         getConsultOCM(answer).then(
           (response) => {
             response.data.map((value: any) => {
@@ -386,7 +386,7 @@ const SearchBuy = (props:any) => {
 
 return (
 <>
-<Grid container spacing={1} style={{position: 'relative', top: '-40px', marginBottom: '-60px'}}>
+<Grid container spacing={1} style={{position: 'relative', top: '-40px'}}>
 <Grid item xs={12} sm={2.5}>
  <CustomFormLabel htmlFor="standard-select-currency">Filial</CustomFormLabel>
 
@@ -465,7 +465,7 @@ return (
   </Grid>
  
  </Grid>
-  <Grid container spacing={1} style={{position: 'relative', marginBottom: '-20px'}}>
+  <Grid container spacing={1} style={{position: 'relative', top: '-40px'}}>
 
   <Grid item xs={12} sm={2}>
  <CustomFormLabel htmlFor="standard-select-currency">CFOP</CustomFormLabel>
@@ -517,7 +517,7 @@ return (
   </Grid>
  
 </Grid> 
- <Grid container spacing={1} style={{position: 'relative', marginBottom: '-10px'}}>
+ <Grid container spacing={1} style={{position: 'relative', top: '-40px'}}>
 <Grid item xs={12} sm={3}>
  <CustomFormLabel htmlFor="standard-select-currency">Observação</CustomFormLabel>
 
@@ -598,36 +598,32 @@ Limpar
           whiteSpace: 'nowrap',
         }}
       >
-        <TableHead>
-          <TableRow style={{ backgroundColor: '#5D87FF', borderRadius: '20px' }}>
-
-            <TableCell>
+        <TableHead sx={{ height: '24px' }}>
+          <TableRow style={{ backgroundColor: '#5D87FF'}} sx={{ height: '24px' }}>
+            <TableCell sx={{ padding: '4px 8px', textAlign: 'center' }}>
               <Typography style={{ fontSize: '9pt', fontWeight: '600', textAlign: 'center', }}>FILIAL</Typography>
             </TableCell>
-            <TableCell>
-              <Typography style={{ fontSize: '9pt', fontWeight: '600', textAlign: 'center', }}>CFOP</Typography>
+             <TableCell sx={{ padding: '4px 8px', textAlign: 'center' }}>
+              <Typography style={{ fontSize: '9pt', fontWeight: '600', textAlign: 'center', }}>OC</Typography>
             </TableCell>
-            <TableCell>
-              <Typography style={{ fontSize: '9pt', fontWeight: '600', textAlign: 'center', }}>DATA PEDIDO</Typography>
-            </TableCell>
-            <TableCell>
+            <TableCell sx={{ padding: '4px 8px', textAlign: 'center' }}>
               <Typography style={{ fontSize: '9pt', fontWeight: '600', textAlign: 'center', }}>FORNECEDOR</Typography>
             </TableCell>
-            <TableCell>
-              <Typography style={{ fontSize: '9pt', fontWeight: '600', textAlign: 'center', }}>OPERAÇÃO</Typography>
+            <TableCell sx={{ padding: '4px 8px', textAlign: 'center' }}>
+              <Typography style={{ fontSize: '9pt', fontWeight: '600', textAlign: 'center', }}>DATA OC</Typography>
             </TableCell>
-            <TableCell>
-              <Typography style={{ fontSize: '9pt', fontWeight: '600', textAlign: 'center', }}>PEDIDO</Typography>
-            </TableCell>
-            <TableCell>
-              <Typography style={{ fontSize: '9pt', fontWeight: '600', textAlign: 'center', }}>STATUS</Typography>
-            </TableCell>
-            <TableCell>
-              <Typography style={{ fontSize: '9pt', fontWeight: '600', textAlign: 'center', }}>TOTAL REGISTRO</Typography>
-            </TableCell>
-            <TableCell>
+            <TableCell sx={{ padding: '4px 8px', textAlign: 'center' }}>
               <Typography style={{ fontSize: '9pt', fontWeight: '600', textAlign: 'center', }}>VALOR TOTAL</Typography>
             </TableCell>
+            <TableCell sx={{ padding: '4px 8px', textAlign: 'center' }}>
+              <Typography style={{ fontSize: '9pt', fontWeight: '600', textAlign: 'center', }}>OPERAÇÃO</Typography>
+            </TableCell>
+            <TableCell sx={{ padding: '4px 8px', textAlign: 'center' }}>
+              <Typography style={{ fontSize: '9pt', fontWeight: '600', textAlign: 'center', }}>CFOP</Typography>
+            </TableCell>
+            <TableCell sx={{ padding: '4px 8px', textAlign: 'center' }}>
+              <Typography style={{ fontSize: '9pt', fontWeight: '600', textAlign: 'center', }}>STATUS</Typography>
+            </TableCell> 
           </TableRow>
         </TableHead>
         <TableBody>
@@ -637,36 +633,29 @@ Limpar
                 <Typography style={{ fontSize: '8pt', textAlign: 'center' }}>{response.filial}</Typography>
               </TableCell>
               <TableCell>
-                <Typography style={{ fontSize: '8pt', textAlign: 'center' }}>{response.cfop}</Typography>
-              </TableCell>
-              <TableCell>
-                <Typography style={{ fontSize: '8pt', textAlign: 'center' }}>{response.dataPedido}</Typography>
+                <Typography style={{ fontSize: '8pt', textAlign: 'center' }}>{response.pedido}</Typography>
               </TableCell>
               <TableCell>
                 <Typography style={{ fontSize: '8pt', textAlign: 'center' }}>{response.fornecedor}</Typography>
               </TableCell>
               <TableCell>
-                <Typography style={{ fontSize: '8pt', textAlign: 'center' }}>{response.operacao}</Typography>
-              </TableCell>
-              <TableCell>
-                <Typography style={{ fontSize: '8pt', textAlign: 'center' }}>{response.pedido}</Typography>
-              </TableCell>
-              <TableCell>
-                <Typography style={{ fontSize: '8pt', textAlign: 'center' }}>{response.status}</Typography>
-              </TableCell>
-              <TableCell>
-                <Typography style={{ fontSize: '8pt', textAlign: 'center' }}>{response.totalRegistros}</Typography>
+                <Typography style={{ fontSize: '8pt', textAlign: 'center' }}>{response.dataPedido}</Typography>
               </TableCell>
               <TableCell>
                 <Typography style={{ fontSize: '8pt', textAlign: 'center' }}>{response.valotTotal}</Typography>
               </TableCell>
               <TableCell>
-                <Typography style={{ fontSize: '8pt', textAlign: 'center' }}>{response.statusEstoque}</Typography>
+                <Typography style={{ fontSize: '8pt', textAlign: 'center' }}>{response.operacao}</Typography>
               </TableCell>
               <TableCell>
-                <Typography style={{ fontSize: '8pt', textAlign: 'center' }}>{response.valortotalPedido}</Typography>
+                <Typography style={{ fontSize: '8pt', textAlign: 'center' }}>{response.cfop}</Typography>
               </TableCell>
-
+              <TableCell>
+                <Typography style={{ fontSize: '8pt', textAlign: 'center' }}>{response.status}</Typography>
+              </TableCell>
+              {/* <TableCell>
+                <Typography style={{ fontSize: '8pt', textAlign: 'center' }}>{response.statusEstoque}</Typography>
+              </TableCell> */}
             </TableRow>
           ))}
         </TableBody>

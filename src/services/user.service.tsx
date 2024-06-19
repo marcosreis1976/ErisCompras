@@ -17,6 +17,18 @@ export const getAffiliated = () =>{
   return axios.get(API_URL + `/Terceiros/ListarFiliais`);
 }
 
+export const getCFOP = () =>{
+  return axios.get(API_URL + '/OC/ListarCfops');
+}
+
+export const getNameFornecedor = (data:any) =>{
+  return axios.get(API_URL + `/Terceiros/BuscarFornecedorPorNome${data}`)
+}
+
+export const geFornecedor = (data:any) =>{
+  return axios.get(API_URL + `/Terceiros/BuscarFornecedor${data}`)
+}
+
 export const getListSellers = () =>{
   return axios.get(API_URL + "/Terceiros/ListarVendedores");
 }
