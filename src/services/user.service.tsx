@@ -17,15 +17,15 @@ export const getAffiliated = () =>{
   return axios.get(API_URL + `/Terceiros/ListarFiliais`);
 }
 
-export const getCFOP = () =>{
-  return axios.get(API_URL + '/OC/ListarCfops');
+export const getCFOP = (data:any) =>{
+  return axios.get(API_URL + `/OC/ListarCfops${data}`);
 }
 
 export const getNameFornecedor = (data:any) =>{
   return axios.get(API_URL + `/Terceiros/BuscarFornecedorPorNome${data}`)
 }
 
-export const geFornecedor = (data:any) =>{
+export const getFornecedor = (data:any) =>{
   return axios.get(API_URL + `/Terceiros/BuscarFornecedor${data}`)
 }
 

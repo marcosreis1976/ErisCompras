@@ -12,7 +12,7 @@ import {
   Modal,
   Box,Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, 
 } from '@mui/material'
-import {getAffiliated,  itensRequest, itensStock, getCFOP, getNameFornecedor, geFornecedor} from "../../services/user.service"
+import {getAffiliated,  itensRequest, itensStock, getCFOP, getNameFornecedor, getFornecedor} from "../../services/user.service"
 import CustomCheckbox from 'src/components/forms/theme-elements/CustomCheckbox';
 
 
@@ -54,6 +54,7 @@ const RegisterBuy = () => {
     const [nameTitle, setNameTitle] = useState<any>('');
     const [nameFornecedor, setNameFornecedor] = useState<any>('');
     const [nameFilial, setNameFilial] = useState<any>(-1);
+    const [codigo, setCodigo] = useState<any>('');
     const [nameStatuss, setNameStatuss] = useState<any>(-1);
     const [nameOper, setNameOper] = useState<any>(-1);
     const [nameObj, setNameObj] = useState<any>(-1);
@@ -61,11 +62,13 @@ const RegisterBuy = () => {
     const [affiliated, setAffiliated] = useState([]);
     const [status, setStatus] = useState<any>([]);
     const [oper, setOper] = useState<any>([]);
+    const [contatos, setContatos] = useState<string[]>([]);
     const [obj, setObj] = useState<any>([]);
     const [prod, setProd] = useState<any>([]);
     const [requests, setRequest] = useState([]);
     const [stocks, setStocks] = useState([]);
     const [open, setOpen] = useState(false);
+    const [typeModal, setTypeModal] = useState(0);
     const [valueModal, setValueModal] = useState<any>([]);
 
     const handleChangeStatus = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -87,6 +90,10 @@ const RegisterBuy = () => {
       setNameFornecedor(event.target.value);
     } 
 
+    const handleChangeCodigo = (event: React.ChangeEvent<HTMLInputElement>) => {
+      setCodigo(event.target.value);
+    } 
+
       const handleChangeOper = (event: React.ChangeEvent<HTMLInputElement>) => {
         setNameOper(event.target.value);
       }
@@ -95,19 +102,29 @@ const RegisterBuy = () => {
       }
 
       const handleOpen = () => {
-        let parameter = `?nomeFornecedor=${nameFornecedor}`
-        console.log(nameFornecedor)
-        nameFornecedor == '' ? 'aparecer mensagem' : (
+        let parameter = '';
+        nameFornecedor != '' ?
+        (  parameter = `?nomeFornecedor=${nameFornecedor}`,
+        getNameFornecedor(parameter).then((response)=>{
+          setTypeModal(1)
+          setOpen(true);
+          setValueModal(response.data)
+          console.log(response.data)
           
-          getNameFornecedor(parameter).then((response)=>{
-            setOpen(true);
-            setValueModal(response.data)
-          })
+        })
+         ) : 
+        (parameter += codigo != '' ? `?codigoFornecedor=${codigo}` : '',
+        parameter += nameCPFCNPJ != ''? `&cnpjCpf=${nameCPFCNPJ}` : '',
+         getFornecedor(parameter).then((response)=>{
+          setTypeModal(2)
+          setOpen(true);
+          setContatos(response.data.contatos)
+          setValueModal([response.data.fornecedor])
+         })
 
-        
+        );
 
-        
-      )}
+      }
       const handleClose = () => setOpen(false);
   
       
@@ -121,6 +138,29 @@ const RegisterBuy = () => {
       const handleChangeFilial = (event: React.ChangeEvent<HTMLInputElement>) => {
         setNameFilial(event.target.value);
       };
+
+      const choose = (row:any) =>{
+
+        let parameter = '';
+        typeModal == 1 ? (
+        console.log(row),
+        parameter = `?codigoFornecedor=${row.codigoTerceiro}`,
+        getFornecedor(parameter).then((response)=>{
+          console.log(response.data)
+          setNameCPFCNPJ(response.data.fornecedor.cnpjCpf.length == 11 ? formatCPF(response.data.fornecedor.cnpjCpf) : formatCNPJ(response.data.fornecedor.cnpjCpf))
+          setContatos(response.data.contatos)
+          setCodigo(response.data.fornecedor.codigoFornecedor)
+          setOpen(false);
+         })
+
+        ) : (
+          setNameCPFCNPJ(row.cnpjCpf.length == 11 ? formatCPF(row.cnpjCpf) : formatCNPJ(row.cnpjCpf)),
+          setCodigo(row.codigoFornecedor),
+          setNameFornecedor(row.nomeFornecedor),
+          setOpen(false)
+        )
+
+      }
 
       useEffect(() => {
         getAffiliated().then(
@@ -145,7 +185,7 @@ const RegisterBuy = () => {
             }]
             setStatus(status)
 
-            getCFOP().then((response)=>{
+            getCFOP('?apenasEntrada=1').then((response)=>{
               console.log(response.data)
               setOper(response.data)
             })
@@ -182,6 +222,12 @@ const RegisterBuy = () => {
         
       }, []);
 
+const clean = () =>{
+  setContatos([])
+  setCodigo('')
+  setNameCPFCNPJ('')
+  setNameFornecedor('')
+}
 
 return (
 <>
@@ -270,7 +316,7 @@ return (
   <Grid item xs={12} sm={1.5}>
  <CustomFormLabel htmlFor="standard-select-currency">Código</CustomFormLabel>
 
-<CustomTextField id="password" value={nameTitle} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
+<CustomTextField id="password" value={codigo} onChange={handleChangeCodigo} type="text" variant="outlined" fullWidth />
 
   </Grid>
 
@@ -312,7 +358,7 @@ Cadastrar
 
  <Grid container spacing={1} style={{position: 'relative', top: '-50px'}}>
  <Grid item xs={12} sm={2}>
- <CustomFormLabel htmlFor="standard-select-currency">Contato</CustomFormLabel>
+ <CustomFormLabel htmlFor="standard-select-currency">Contatos</CustomFormLabel>
 
  <CustomSelect
                       value={nameOper}
@@ -321,11 +367,11 @@ Cadastrar
                       variant="outlined"
                     >
                       <MenuItem value="-1">{nameStatus[3]}</MenuItem>
-                      {oper.map((option:any) => (
-                        <MenuItem key={option.index} value={option.index}>
-                          {option.value}
+                      {contatos.length > 0 ? contatos.map((option:any, index:any) => (
+                        <MenuItem key={index} value={index}>
+                          {option.nomeContato}
                         </MenuItem>
-                      ))}
+                      )) : null}
                     </CustomSelect>
   </Grid>
   <Grid item xs={12} sm={2}>
@@ -344,11 +390,11 @@ Cadastrar
                       variant="outlined"
                     >
                       <MenuItem value="-1">{nameStatus[4]}</MenuItem>
-                      {oper.map((option:any) => (
+                      {/* {oper.map((option:any) => (
                         <MenuItem key={option.index} value={option.index}>
                           {option.value}
                         </MenuItem>
-                      ))}
+                      ))} */}
                     </CustomSelect>
   </Grid>
   <Grid item xs={12} sm={2}>
@@ -404,11 +450,11 @@ Cadastrar
                       variant="outlined"
                     >
                       <MenuItem value="-1">{nameStatus[5]}</MenuItem>
-                      {oper.map((option:any) => (
+                      {/* {oper.map((option:any) => (
                         <MenuItem key={option.index} value={option.index}>
                           {option.value}
                         </MenuItem>
-                      ))}
+                      ))} */}
                     </CustomSelect>
   </Grid>
   </Grid>
@@ -440,7 +486,7 @@ Cadastrar
                  style={{height: '40px', width: '100px', fontWeight: 600}}
                  sx={{ mr: 1 }}
                  type="submit"
-              
+                onClick={()=>clean()}
                >
                  Limpar
                </Button>
@@ -467,12 +513,12 @@ Cadastrar
               </TableHead>
               <TableBody>
                 {valueModal.map((row:any, index:any) => (
-                  <TableRow key={index}>
+                  <TableRow key={index} style={{cursor: 'pointer'}} onClick={() => choose(row)}>
                     <TableCell component="th" scope="row">
-                      {row.nomeTerceiro}
+                      {typeModal == 1 ? row.nomeTerceiro: row.nomeFornecedor}
                     </TableCell>
-                    <TableCell align="center">{row.cnpjCpf}</TableCell>
-                    <TableCell align="center">{row.codigoTerceiro}</TableCell>
+                    <TableCell align="center">{row.cnpjCpf.length == 11 ? formatCPF(row.cnpjCpf): formatCNPJ(row.cnpjCpf)}</TableCell>
+                    <TableCell align="center">{typeModal == 1 ? row.codigoTerceiro : row.codigoFornecedor}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
