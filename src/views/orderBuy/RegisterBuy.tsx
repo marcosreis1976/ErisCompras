@@ -103,6 +103,7 @@ const RegisterBuy = () => {
     const [valorFrete, setValorFrete] = useState(context.valorFrete)
     const [objetivoTransferencia, setObjetivoTransferencia] = useState(context.codigoObjetivoTransferencia)
     const [responsavelFrete, setResponsavelFrete] = useState(context.responsavelFrete)
+    const [valueRadio, setValueRadio] = useState([false, false, false])
 
 
     const handleChangeStatus = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -465,14 +466,16 @@ Cadastrar
  <CustomFormLabel style={{position: 'relative', textAlign: 'center', top: '-25px'}} htmlFor="standard-select-currency">Resp. Frete</CustomFormLabel>
 <span style={{position: 'relative', width: '100%', left: '10%'}}>
  <Radio
-                    value={responsavelFrete == 1}
+  checked={responsavelFrete == 1}
+                    value={'teste'}
                     style={{position: 'relative',top: '-30px'}}
                     name="radio-buttons"
                     inputProps={{ 'aria-label': 'tete' }}
-                  />
+                  /> 
 <label  style={{position: 'relative',top: '-30px'}}>Emitente</label>
 <Radio
-                    value={responsavelFrete == 2}
+                    checked={responsavelFrete == 2}
+                    value={'teste'}
                     style={{position: 'relative',top: '-30px', textAlign: 'right'}}
                     name="radio-buttons"
                     inputProps={{ 'aria-label': 'tete' }}
