@@ -1,4 +1,4 @@
-import { useState, useEffect, JSXElementConstructor, ReactElement, ReactNode, ReactPortal } from 'react';
+import { useState, useEffect, JSXElementConstructor, ReactElement, ReactNode, ReactPortal, useContext } from 'react';
 import CustomTextField from '../../components/forms/theme-elements/CustomTextField';
 import CustomFormLabel from '../../components/forms/theme-elements/CustomFormLabel';
 import CustomSelect from '../../components/forms/theme-elements/CustomSelect';
@@ -24,21 +24,46 @@ import {
 } from '@mui/material'
 import CustomCheckbox from 'src/components/forms/theme-elements/CustomCheckbox';
 import { relative } from 'path';
-
+import {getCondPagamento, getTipoCobrança, getLocalCobrança} from "../../services/user.service"
+import AppContext from './AppContext';
 
 const PriceBuy = () => {
+  const context = useContext(AppContext);
   const [nameTemplate, setNameTemplate] = useState<any>(-1);
-  const [nameStatus] = useState(['R$', 'Sem Vendedor', 'Sem Transportadora', 'Sem Status', 'Sem Estoque'])
+  const [nameStatus] = useState(['R$', 'Sem Vendedor', 'Sem Transportadora', 'Sem Status', 'Sem Estoque', 'Sem Tipo de Cobrança', 'Sem Local de Cobrança'])
   const [nameTitle, setNameTitle] = useState<any>('');
   const [namePedidos, setNamePedidos] = useState<any>(false);
   const [nameObj, setNameObj] = useState<any>(-1);
   const [obj, setObj] = useState<any>([]);
+  const [codPagamento, setCodPagamento] = useState<any>([]);
+  const [tipoCobranca, setTipoCobranca] = useState<any>([]);
+  const [localCobranca, setLocalCobranca] = useState<any>([]);
   const [itens, setItens] = useState<any>([]);
+  
+
+  const {valorTotal, 
+    totalIcms, totalIcmsSt, totalIpi, totalServicos,totalProdutos, valorOutrasDespesas
+
+
+  } = context;
+
+  
 
   useEffect(() => {
     setItens([{name: 'Produtos:', value: '154.10'},{name: 'Serviços:', value: ''},{name: 'Encargos:', value: ''},
     {name: 'I.P.I.:', value: ''},{name: 'I.C.M.S.:', value: ''},{name: 'I.C.M.S.ST:', value: ''},{name: 'Total:', value: ''},
     ])
+
+    getCondPagamento().then((response:any)=>{
+      setCodPagamento(response.data)
+      getTipoCobrança().then((response:any)=>{
+        setTipoCobranca(response.data)
+        getLocalCobrança().then((response:any)=>{
+          setLocalCobranca(response.data)
+        })
+      })
+    })
+
   },[]);
 
 
@@ -72,7 +97,7 @@ const PriceBuy = () => {
          <TableContainer component={Paper}>
       <Table>
         <TableHead>
-
+  
              <TableRow>
              <TableCell style={{ width: '100px',  textAlign: 'center', fontWeight: 'bold', fontSize: '12pt'}}>Produtos</TableCell>
              <TableCell style={{ width: '100px',  textAlign: 'center', fontWeight: 'bold', fontSize: '12pt'}}>Serviços</TableCell>
@@ -85,13 +110,13 @@ const PriceBuy = () => {
         </TableHead>
         <TableBody>
           <TableRow >
-            <TableCell style={{textAlign: 'center'}}>1500,00</TableCell>
-            <TableCell style={{textAlign: 'center'}}>78,10</TableCell>
-            <TableCell style={{textAlign: 'center'}}>47,52</TableCell>
-            <TableCell style={{textAlign: 'center'}}>981,20</TableCell>
-            <TableCell style={{textAlign: 'center'}}>98,10</TableCell>
-            <TableCell style={{textAlign: 'center'}}>45,52</TableCell>
-            <TableCell style={{textAlign: 'center'}}>1500,20</TableCell>
+            <TableCell style={{textAlign: 'center'}}>{totalProdutos}</TableCell>
+            <TableCell style={{textAlign: 'center'}}>{totalServicos}</TableCell>
+            <TableCell style={{textAlign: 'center'}}>{valorOutrasDespesas}</TableCell>
+            <TableCell style={{textAlign: 'center'}}>{totalIpi}</TableCell>
+            <TableCell style={{textAlign: 'center'}}>{totalIcms}</TableCell>
+            <TableCell style={{textAlign: 'center'}}>{totalIcmsSt}</TableCell>
+            <TableCell style={{textAlign: 'center'}}>{valorTotal}</TableCell>
           </TableRow>
         </TableBody>
    
@@ -100,115 +125,44 @@ const PriceBuy = () => {
     </Grid>
     </Grid>
 
-            {/* <Grid container spacing={1} style={{position: 'relative', top: '-50px'}}>
-  <Grid item xs={12} sm={2}>
-  <CustomFormLabel style={{positition: 'relative',}} htmlFor="standard-select-currency">Tipo de Cobrança</CustomFormLabel>
-
-<CustomSelect
-                     value={nameObj}
-                     onChange={handleChangeObj}
-                     fullWidth
-                     variant="outlined"
-                   >
-                     <MenuItem value="-1">{nameStatus[3]}</MenuItem>
-                     {obj.map((option:any) => (
-                        <MenuItem key={option.index} value={option.index}>
-                        {option.value}
-                      </MenuItem>
-                     ))}
-                   </CustomSelect>
-  </Grid>
-
-  <Grid item xs={12} sm={2}>
-  <CustomFormLabel style={{positition: 'relative',}} htmlFor="standard-select-currency">Local da Cobrança</CustomFormLabel>
-
-<CustomSelect
-                     value={nameObj}
-                     onChange={handleChangeObj}
-                     fullWidth
-                     variant="outlined"
-                   >
-                     <MenuItem value="-1">{nameStatus[3]}</MenuItem>
-                     {obj.map((option:any) => (
-                        <MenuItem key={option.index} value={option.index}>
-                        {option.value}
-                      </MenuItem>
-                     ))}
-                   </CustomSelect>
-  </Grid>
-
-  <Grid item xs={12} sm={6}>
-  <CustomFormLabel style={{position: 'relative', top: '0px', fontWeight: 'bold', fontSize: '12pt'}}>Parcelamento:</CustomFormLabel>
-  <TableContainer component={Paper} style={{position: 'relative', top: '0px'}}>
-      <Table>
-      <TableHead>
-      <TableRow>
-             <TableCell style={{ width: '100px',  textAlign: 'left', fontWeight: 'bold', fontSize: '12pt'}}>Vencimento</TableCell>
-             <TableCell style={{ width: '100px', textAlign: 'left', fontWeight: 'bold', fontSize: '12pt' }}>Dias DDL</TableCell>
-             <TableCell style={{ width: '100px',  textAlign: 'left', fontWeight: 'bold', fontSize: '12pt'}}>%</TableCell>
-             <TableCell style={{ width: '100px', textAlign: 'left', fontWeight: 'bold', fontSize: '12pt' }}>Valor</TableCell>
-           </TableRow>
-        </TableHead>
-         <TableBody>
-          <TableRow >
-            <TableCell>Content 1</TableCell>
-            <TableCell>Content 2</TableCell>
-            <TableCell>Content 3</TableCell>
-            <TableCell>Content 3</TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
-    </TableContainer>
-    </Grid>
-
-    <Grid item xs={12} sm={2} style={{position: 'relative', top: '0px'}}>
-    <CustomFormLabel htmlFor="standard-select-currency">Cond. Pagamento:</CustomFormLabel>
-
-<CustomSelect
-                     value={nameObj}
-                     onChange={handleChangeObj}
-                     fullWidth
-                     variant="outlined"
-                   >
-                     <MenuItem value="-1">{nameStatus[3]}</MenuItem>
-                     {obj.map((option:any) => (
-                        <MenuItem key={option.index} value={option.index}>
-                        {option.value}
-                      </MenuItem>
-                     ))}
-                   </CustomSelect>
-<Button
-variant="contained"
-type="submit"
-style={{position: 'relative', top: '5px', height: '43px', width: '100%', backgroundColor: 'green', fontWeight: 600}}
-
->
-Adicionar
-</Button>
-<Button
-variant="contained"
-type="submit"
-style={{position: 'relative', top: '10px', height: '43px', width: '100%', backgroundColor: 'blue', fontWeight: 600}}
-
->
-Editar
-</Button>
-<Button
-variant="contained"
-type="submit"
-style={{position: 'relative', top: '15px', height: '43px', width: '100%', backgroundColor: 'red', fontWeight: 600}}
-
->
-Excluir
-</Button>
-</Grid>
-
-  </Grid> */}
-        
-
 
   <Grid container spacing={1} style={{position: 'relative', top: '-0px'}}>
-  <Grid item xs={12} sm={8}>
+    <Grid item xs={12} sm={3}>
+    <CustomFormLabel style={{position: 'relative', top: '-20px'}} htmlFor="standard-select-currency">Tipo de Cobrança:</CustomFormLabel>
+
+<CustomSelect
+style={{position: 'relative', top: '-20px'}}
+                     value={nameObj}
+                     onChange={handleChangeObj}
+                     fullWidth
+                     variant="outlined"
+                   >
+                     <MenuItem value="-1">{nameStatus[5]}</MenuItem>
+                     {tipoCobranca.map((option:any) => (
+                        <MenuItem key={option.codigoTipoCobranca} value={option.codigoTipoCobranca}>
+                        {option.nomeTipoCobranca}
+                      </MenuItem>
+                     ))}
+                   </CustomSelect>
+
+                   <CustomFormLabel style={{position: 'relative', top: '-35px'}} htmlFor="standard-select-currency">Local da Cobrança:</CustomFormLabel>
+
+<CustomSelect
+style={{position: 'relative', top: '-35px'}}
+                     value={nameObj}
+                     onChange={handleChangeObj}
+                     fullWidth
+                     variant="outlined"
+                   >
+                     <MenuItem value="-1">{nameStatus[6]}</MenuItem>
+                     {localCobranca.map((option:any) => (
+                        <MenuItem key={option.codigoTerceiro} value={option.codigoTerceiro}>
+                        {option.nomeTerceiro}
+                      </MenuItem>
+                     ))}
+                   </CustomSelect>
+    </Grid>
+  <Grid item xs={12} sm={5}>
   <CustomFormLabel style={{position: 'relative', top: '-20px', fontWeight: 'bold', fontSize: '12pt'}}>Parcelamento:</CustomFormLabel>
   <TableContainer component={Paper} style={{position: 'relative', top: '-20px'}}>
       <Table>
@@ -255,36 +209,15 @@ Excluir
                      variant="outlined"
                    >
                      <MenuItem value="-1">{nameStatus[3]}</MenuItem>
-                     {obj.map((option:any) => (
-                        <MenuItem key={option.index} value={option.index}>
-                        {option.value}
+                     {codPagamento.map((option:any) => (
+                        <MenuItem key={option.codigoCondicao} value={option.codigoCondicao}>
+                        {option.nomeCondicao}
                       </MenuItem>
                      ))}
                    </CustomSelect>
-<Button
-variant="contained"
-type="submit"
-style={{position: 'relative', top: '5px', height: '43px', width: '120px', textAlign: 'center',backgroundColor: 'orange', fontWeight: 600}}
 
->
-Adicionar
-</Button>
-<Button
-variant="contained"
-type="submit"
-style={{position: 'relative', top: '10px', height: '43px', width: '120px', backgroundColor: 'blue', fontWeight: 600}}
+                   
 
->
-Editar
-</Button>
-<Button
-variant="contained"
-type="submit"
-style={{position: 'relative', top: '15px', height: '43px', width: '120px', backgroundColor: 'red', fontWeight: 600}}
-
->
-Excluir
-</Button>
 </Grid>
 <Grid item xs={12} sm={2} style={{position: 'relative'}}>
 <Button
@@ -294,6 +227,31 @@ style={{position: 'relative', top: '40px', height: '43px', width: '120px', backg
 
 >
 Selecionar
+</Button>
+
+<Button
+variant="contained"
+type="submit"
+style={{position: 'relative', top: '50px', height: '43px', width: '120px', textAlign: 'center',backgroundColor: 'orange', fontWeight: 600}}
+
+>
+Adicionar
+</Button>
+<Button
+variant="contained"
+type="submit"
+style={{position: 'relative', top: '60px', height: '43px', width: '120px', backgroundColor: 'blue', fontWeight: 600}}
+
+>
+Editar
+</Button>
+<Button
+variant="contained"
+type="submit"
+style={{position: 'relative', top: '70px', height: '43px', width: '120px', backgroundColor: 'red', fontWeight: 600}}
+
+>
+Excluir
 </Button>
   </Grid>
   <Button

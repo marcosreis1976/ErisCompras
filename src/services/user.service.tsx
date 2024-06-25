@@ -12,9 +12,14 @@ import { API_URL } from '../constants/global'
 // };
 
 
+
 export const getAffiliated = () =>{
   
   return axios.get(API_URL + `/Terceiros/ListarFiliais`);
+}
+
+export const getProductCFOP = (data:any) =>{
+  return axios.get(API_URL + `/OC/BuscarOC${data}`)
 }
 
 export const getCFOP = (data:any) =>{
@@ -27,6 +32,18 @@ export const getNameFornecedor = (data:any) =>{
 
 export const getFornecedor = (data:any) =>{
   return axios.get(API_URL + `/Terceiros/BuscarFornecedor${data}`)
+}
+
+export const getLocalCobrança = () =>{
+  return axios.get(API_URL+'/Financeiro/ListarLocalDeCobranca')
+}
+
+export const getTipoCobrança = () =>{
+  return axios.get(API_URL+'/Financeiro/ListarTipoCobrancaCP')
+}
+
+export const getCondPagamento = () =>{
+  return axios.get(API_URL+'/Financeiro/ListarCondicaoPagamento')
 }
 
 export const getListSellers = () =>{
@@ -60,8 +77,7 @@ export const itensStock:any = [{codigoTerceiro: 0, nomeTerceiro: 'Sem Reserva'},
 
  export const values ={
   page: 1,
-   user: userData(),
-
+  user: userData(),
  };
 
 

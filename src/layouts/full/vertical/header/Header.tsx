@@ -23,7 +23,7 @@ const Header = () => {
     if(location.pathname == '/pedidos/ordemcompras'){
       setPage('Ordem de Compras')
     }
-console.log('oi')
+
   });
 
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, JSXElementConstructor, ReactElement, ReactNode, ReactPortal } from 'react';
+import { useState, useEffect, JSXElementConstructor, ReactElement, ReactNode, ReactPortal, useContext } from 'react';
 import CustomTextField from '../../components/forms/theme-elements/CustomTextField';
 import CustomFormLabel from '../../components/forms/theme-elements/CustomFormLabel';
 import CustomSelect from '../../components/forms/theme-elements/CustomSelect';
@@ -18,22 +18,27 @@ import {
   TableCell,
   TableBody,
   IconButton,
-  FormControlLabel,
+  FormControlLabel, 
   Paper,
   TextField,
 } from '@mui/material'
 import CustomCheckbox from 'src/components/forms/theme-elements/CustomCheckbox';
 import { relative } from 'path';
+import AppContext from './AppContext';
 
 
 const Obs = () => {
+  const context = useContext(AppContext);
   const [nameTemplate, setNameTemplate] = useState<any>(-1);
   const [nameStatus] = useState(['R$', 'Sem Vendedor', 'Sem Transportadora', 'Sem Status', 'Sem Estoque'])
   const [nameTitle, setNameTitle] = useState<any>('');
+  const [obsFinanceira, setObsFinanceira] = useState<any>(context.observacaoFinanceiro);
   const [namePedidos, setNamePedidos] = useState<any>(false);
   const [nameObj, setNameObj] = useState<any>(-1);
-  const [obj, setObj] = useState<any>([]);
+  const [obs, setObs] = useState<any>(context.observacaoOC);
   const [itens, setItens] = useState<any>([]);
+  // context.value
+
 
   useEffect(() => {
     setItens([{name: 'Produtos:', value: '154.10'},{name: 'Serviços:', value: ''},{name: 'Encargos:', value: ''},
@@ -71,7 +76,7 @@ const Obs = () => {
     <Grid item xs={12} sm={12} >
  <CustomFormLabel htmlFor="standard-select-currency">Observação</CustomFormLabel>
 
-<TextField multiline id="password" rows={3} value={nameTitle} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
+<TextField multiline id="password" rows={3} value={obs} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
 
   </Grid>
 
@@ -79,7 +84,7 @@ const Obs = () => {
   <Grid item xs={12} sm={12}>
  <CustomFormLabel htmlFor="standard-select-currency">Oservação Financeiro</CustomFormLabel>
 
-<TextField id="password"  rows={3} multiline value={nameTitle} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
+<TextField id="password"  rows={3} multiline value={obsFinanceira} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
 
   </Grid>
 

@@ -38,7 +38,7 @@ import PriceBuy from './PriceBuy'
 import Obs from './Obs'
 import DetailsBuy from './DetailsBuy';
 import PageContainer from 'src/components/container/PageContainer';
-
+import { AppProvider } from './AppContext';
 
 interface TabType {
   value: string;
@@ -79,7 +79,7 @@ const OrderBuy = () => {
   
     return (
         <>
-
+<AppProvider>
 
          <Grid item xs={12} sm={6} display="flex" alignItems="stretch">
             <ChildCard >
@@ -117,7 +117,7 @@ const OrderBuy = () => {
               </TabContext>
             </ChildCard>
           </Grid> 
-         
+          </AppProvider>
         </>
   );
 };

@@ -20,10 +20,13 @@ import {
   Box,
   CircularProgress
 } from '@mui/material'
-import {getAffiliated, getConsultOCM, getListTransporters, itensRequest, itensStock, getOrderPanel, getListSummary} from "../../services/user.service"
+import {getAffiliated, getConsultOCM, getProductCFOP, itensRequest, itensStock, getOrderPanel, getListSummary} from "../../services/user.service"
 import OrderBuy from './index';
 import {CartContext} from "../../App"
 import BlankCard from 'src/components/shared/BlankCard';
+import * as AuthService from "../../services/auth.service";
+import AppContext from './AppContext';
+
 
 const LoadingSplash = () => {
   return (
@@ -68,7 +71,7 @@ const formatCNPJ = (value:any) => {
 
 const SearchBuy = (props:any) => {
     const [nameTemplate, setNameTemplate] = useState<any>(-1);
-    const [nameStatus] = useState(['Sem Filial', 'Sem Status', 'Sem Operação', 'Sem Objeto', 'Sem Produto'])
+    const [nameStatus] = useState(['Sem Filial', 'Sem Status', 'Sem Operação', 'Sem Objetivo', 'Sem Produto'])
     const [nameTitle, setNameTitle] = useState<any>('');
     const [nameOC, setNameOC] = useState<any>('');
     const [nameFornecedor, setNameFornecedor] = useState<any>('');
@@ -95,10 +98,17 @@ const SearchBuy = (props:any) => {
     let answer = useContext(CartContext)
     const [loading, setLoading] = useState(false);
     const [dataPage, setDataPage] = useState(answer);
-    const [totalPages, setTotalPages] = useState(1);
+    const [totalPages, setTotalPages] = useState(0);
     const [parameter, setParameter] = useState('');
+    const [filtroProduto, setFiltroProduto] = useState('')
     const [page, setPage] = useState(0);
     const [valueRadio, setValueRadio] = useState([false, false, false])
+
+    const context = useContext(AppContext);
+
+
+
+
 
     const mudarMensagem = () => {
       props.atualizarMensagem(2);
@@ -144,6 +154,10 @@ const SearchBuy = (props:any) => {
         setNameFilial(event.target.value);
       };
 
+      const handleChangeFiltroProduto = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setFiltroProduto(event.target.value);
+      };
+
       const handleChangePedido = (event: React.ChangeEvent<HTMLInputElement>) => {
         setNamePedido(event.target.value);
       };
@@ -168,7 +182,7 @@ const SearchBuy = (props:any) => {
         if (input.length > 10) {
           input = input.slice(0, 10);
         }
-    
+     
         setNameDataInicial(input);
       };
     
@@ -196,6 +210,28 @@ const SearchBuy = (props:any) => {
         setNameObs(event.target.value);
       };
     
+      const clean = () =>{
+        setNameFilial(-1)
+        setNameOC('')
+        setNameFornecedor('')
+        setNamecnpjCpf('')
+        setNameStatuss(-1)
+        setNameOper(-1)
+        setNameObj(-1)
+        setnameCFOP('')
+        setNameUser('')
+        setNamePedido('')
+        setNameDataInicial('')
+        setNameDataFinal('')
+        setNameObs('')
+        setValueRadio((prevStates) => {
+            return [false, false, false];
+        });
+        setFiltroProduto('')
+
+
+        
+      }
 
       const searchOCM = () =>{
         setValueTable([])
@@ -207,6 +243,8 @@ const SearchBuy = (props:any) => {
           return
         }
 
+        let tipoFiltroProduto = valueRadio.indexOf(true) + 1;
+
         let parameter = `&filial=${nameFilial}`;
         nameOC != '' ? parameter = parameter + `&pedido=${nameOC}` : null
         nameFornecedor != '' ? parameter = parameter + `&fornecedor=${nameFornecedor}` : null
@@ -217,6 +255,11 @@ const SearchBuy = (props:any) => {
         nameOper != -1 ? parameter = parameter + `&operacao=${nameOper}` : null
         nameUser != '' ? parameter = parameter + `&usuarioFiltro=${nameUser}` : null
         namePedido != '' ? parameter = parameter + `&pedidoCliente=${namePedido}` : null
+        filtroProduto != '' ? (
+          parameter = parameter + `&tipoFiltroProduto=${tipoFiltroProduto}`,
+          parameter = parameter + `&filtroProduto=${filtroProduto}`
+
+        ) : null
         if(nameDataInicial != ''){
           let partesData = nameDataInicial.split('/')
           let dia = partesData[0]
@@ -232,14 +275,12 @@ const SearchBuy = (props:any) => {
           parameter = parameter + `&dataFinal=${mes}/${dia}/${ano}`
         }
 
-
-
         setPage(1)
         setParameter(parameter)
         parameter = parameter + `&numeroPagina=1&tamanhoPagina=5&usuario=${dataPage.user?.userName}`
         
         getConsultOCM(parameter).then((response)=>{
-          console.log(response)
+      
           setValueTable(response.data)
           setLoading(false)
           setTotalPages(Math.ceil(response.data[0].totalRegistros / 7));
@@ -264,7 +305,7 @@ const SearchBuy = (props:any) => {
       useEffect(() => {
         getAffiliated().then(
           (response) => {
-            console.log(response.data)
+
             setRequest(itensRequest)
             setStocks(itensStock)
             
@@ -343,7 +384,7 @@ const SearchBuy = (props:any) => {
 
         let newPage = value
         event;
-        console.log(event)
+
         setPage(value)
         // setErros(false)
         // setSearch(true)
@@ -383,6 +424,52 @@ const SearchBuy = (props:any) => {
           // }
         );
       };
+
+
+      const handleRowClick = (value:any) => {
+       
+       
+        const user = AuthService.getCurrentUser();
+
+        let parameter = `?pedido=${value.pedido}&usuario=${user.userName}`
+
+        getProductCFOP(parameter).then((response:any)=>{
+
+          console.log(response.data)
+
+          context.setObsFinanceira(response.data.pedido.observacaoFinanceiro)
+          context.setCnpjCpf(response.data.pedido.cnpjCpf)
+          context.setCodigoCfop(response.data.pedido.codigoCfop)
+          context.setCodigoFilial(response.data.pedido.codigoFilial)
+          context.setCodigoFornecedor(response.data.pedido.codigoFornecedor)
+          context.setCodigoLocalCobranca(response.data.pedido.codigoLocalCobranca)
+          context.setCodigoObjetivoTransferencia(response.data.pedido.codigoObjetivoTransferencia)
+          context.setCodigoStatus(response.data.pedido.codigoStatus)
+          context.setCodigoTipoCobranca(response.data.pedido.codigoTipoCobranca)
+          context.setDataEntrega(response.data.pedido.dataEntrega)
+          context.setDataPedido(response.data.pedido.dataPedido)
+          context.setFornecedor(response.data.pedido.fornecedor)
+          context.setIsFreteEmbutido(response.data.pedido.isFreteEmbutido)
+          context.setNomeContato(response.data.pedido.nomeContato)
+          context.setObservacaoFinanceiro(response.data.pedido.observacaoFinanceiro)
+          context.setObservacaoOC(response.data.pedido.observacaoOC)
+          context.setPedido(response.data.pedido.pedido)
+          context.setPedidoCliente(response.data.pedido.pedidoCliente)
+          context.setResponsavelFrete(response.data.pedido.responsavelFrete)
+          context.setTotalIcms(response.data.pedido.totalIcms)
+          context.setTotalIcmsSt(response.data.pedido.totalIcmsSt)
+          context.setTotalIpi(response.data.pedido.totalIpi)
+          context.setTotalProdutos(response.data.pedido.totalProdutos)
+          context.setTotalServicos(response.data.pedido.totalServicos)
+          context.setValorFrete(response.data.pedido.valorFrete)
+          context.setValorOutrasDespesas(response.data.pedido.valorOutrasDespesas)
+          context.setValorSeguro(response.data.pedido.valorSeguro)
+          context.setValorTotal(response.data.pedido.valorTotal)
+          context.setContatos(response.data.contatos)
+        
+        })
+        // Adicione a lógica desejada aqui
+    };
 
 return (
 <>
@@ -552,14 +639,14 @@ return (
                     inputProps={{ 'aria-label': 'tete' }}
                   />
 <label  style={{position: 'relative', top: '-14px'}}>Código</label>
-<CustomTextField   style={{position: 'relative', top: '-20px',  width: '98%'}} id="password" value={nameTitle} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
+<CustomTextField   style={{position: 'relative', top: '-20px',  width: '98%'}} id="password" value={filtroProduto} onChange={handleChangeFiltroProduto} type="text" variant="outlined" fullWidth />
   </Grid>
   <Grid item xs={12} sm={5} style={{position: 'relative', textAlign: 'center', display: 'flex', justifyContent: 'space-between'}}>
 <Button
 variant="contained"
 color="primary"
 type="submit"
-style={{position: 'relative', top: '55px', height: '43px', width: '100px'}}
+style={{position: 'relative', top: '55px', height: '40px', width: '100px'}}
 onClick={()=>searchOCM()}
 >
 Pesquisar
@@ -569,7 +656,7 @@ Pesquisar
 variant="contained"
 color="secondary"
 type="submit"
-style={{position: 'relative', top: '55px', height: '43px', width: '100px'}}
+style={{position: 'relative', top: '55px', height: '40px', width: '100px'}}
 onClick={mudarMensagem}
 
 >
@@ -580,8 +667,8 @@ Nova OC
 variant="contained"
 color="error"
 type="submit"
-style={{position: 'relative', top: '55px', height: '43px', width: '100px'}}
-
+style={{position: 'relative', top: '55px', height: '40px', width: '100px', backgroundColor: 'gray'}}
+onClick={()=>clean()}
 >
 Limpar
 </Button>
@@ -628,7 +715,10 @@ Limpar
         </TableHead>
         <TableBody>
           {valueTable.map((response: any, i:any) => (
-            <TableRow key={i}>
+            <TableRow 
+            key={i} 
+            onClick={() => handleRowClick(response)}
+            sx={{ cursor: 'pointer', '&:hover': { backgroundColor: 'gray' } }}>
               <TableCell>
                 <Typography style={{ fontSize: '8pt', textAlign: 'center' }}>{response.filial}</Typography>
               </TableCell>
@@ -642,7 +732,7 @@ Limpar
                 <Typography style={{ fontSize: '8pt', textAlign: 'center' }}>{response.dataPedido}</Typography>
               </TableCell>
               <TableCell>
-                <Typography style={{ fontSize: '8pt', textAlign: 'center' }}>{response.valotTotal}</Typography>
+                <Typography style={{ fontSize: '8pt', textAlign: 'center' }}>{response.valorTotal}</Typography>
               </TableCell>
               <TableCell>
                 <Typography style={{ fontSize: '8pt', textAlign: 'center' }}>{response.operacao}</Typography>
@@ -674,19 +764,22 @@ Limpar
       color="primary" /> <p>Página atual: {page}</p>
 
     </>
-    : valueTable.length == 0 && totalPages != 1?
-
-      <Alert variant="outlined" style={{top: '50px'}} severity="error">
-    Sem registros
-  </Alert> 
 
   : null}
   {loading == true ?  <LoadingSplash /> : false}
+
  
 </TableContainer>
+
 </BlankCard>
 
  </Grid> 
+ {valueTable.length == 0 && loading == false && totalPages > 0?
+
+<Alert variant="outlined"  severity="error">
+Sem registros
+</Alert> 
+: null}
   </>
 
 );

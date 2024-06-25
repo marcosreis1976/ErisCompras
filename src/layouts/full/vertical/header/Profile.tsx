@@ -52,7 +52,7 @@ const Profile = () => {
      }
  );
 
-    console.log('oiii')
+
   
   });
 

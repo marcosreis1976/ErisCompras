@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import CustomTextField from '../../components/forms/theme-elements/CustomTextField';
 import CustomFormLabel from '../../components/forms/theme-elements/CustomFormLabel';
 import CustomSelect from '../../components/forms/theme-elements/CustomSelect';
@@ -12,9 +12,19 @@ import {
   Modal,
   Box,Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, 
 } from '@mui/material'
-import {getAffiliated,  itensRequest, itensStock, getCFOP, getNameFornecedor, getFornecedor} from "../../services/user.service"
+import {getAffiliated,  itensRequest, itensStock, getCFOP, getNameFornecedor, getFornecedor, getListTransporters} from "../../services/user.service"
 import CustomCheckbox from 'src/components/forms/theme-elements/CustomCheckbox';
+import AlertError from 'src/components/alertError/alertError';
+import AppContext from './AppContext';
 
+const styles = {
+  base: {
+    cursor: 'pointer',
+    ':hover': {
+      color: 'red'
+    }
+  }
+};
 
 const style = {
   position: 'absolute',
@@ -47,44 +57,74 @@ const formatCNPJ = (value:any) => {
     .substring(0, 18); // Limit length to 18 characters
 };
 
+const removerCaracteres = (cpfOuCnpj:any) => {
+  console.log(cpfOuCnpj)
+  return cpfOuCnpj.replace(/\D/g, '');
+}
+
+
 
 const RegisterBuy = () => {
+    const context = useContext(AppContext);
+
+
+
     const [nameTemplate, setNameTemplate] = useState<any>(-1);
     const [nameStatus] = useState(['Sem Filial', 'Sem Status', 'Sem CFOP', 'Sem Contato', 'Sem Transportadora', 'Sem Objetivo Transferência'])
     const [nameTitle, setNameTitle] = useState<any>('');
-    const [nameFornecedor, setNameFornecedor] = useState<any>('');
-    const [nameFilial, setNameFilial] = useState<any>(-1);
-    const [codigo, setCodigo] = useState<any>('');
-    const [nameStatuss, setNameStatuss] = useState<any>(-1);
-    const [nameOper, setNameOper] = useState<any>(-1);
+    const [nameFornecedor, setNameFornecedor] = useState<any>(context.fornecedor);
+    const [nameFilial, setNameFilial] = useState<any>(context.codigoFilial);
+    const [oc, setOC] = useState<any>(context.pedido)
+    const [dataEntrega, setDataEntrega] = useState<any>(context.dataPedido)
+    const [dataOC, setDataOC] = useState<any>(context.dataPedido)
+    const [codigo, setCodigo] = useState<any>(context.codigoFornecedor);
+    const [nameStatuss, setNameStatuss] = useState<any>(context.codigoStatus);
+    const [nameOper, setNameOper] = useState<any>(context.codigoCfop);
     const [nameObj, setNameObj] = useState<any>(-1);
-    const [nameCPFCNPJ, setNameCPFCNPJ] = useState<any>('')
+    const [nameCPFCNPJ, setNameCPFCNPJ] = useState<any>(context.cnpjCpf)
     const [affiliated, setAffiliated] = useState([]);
+    const [transportadora, setTransportadora] = useState([]);
     const [status, setStatus] = useState<any>([]);
     const [oper, setOper] = useState<any>([]);
-    const [contatos, setContatos] = useState<string[]>([]);
+    const [contatos, setContatos] = useState<string[]>(context.contatos);
     const [obj, setObj] = useState<any>([]);
     const [prod, setProd] = useState<any>([]);
     const [requests, setRequest] = useState([]);
     const [stocks, setStocks] = useState([]);
     const [open, setOpen] = useState(false);
+    const [openError, setOpenError] = useState(true);
+    const [eContato, setEContato] = useState<any>(-1);
     const [typeModal, setTypeModal] = useState(0);
     const [valueModal, setValueModal] = useState<any>([]);
+    const [valorSeguro, setValorSeguro] = useState(context.valorSeguro)
+    const [valorOutrasDespesas, setValorOutrasDespesas] = useState(context.valorOutrasDespesas)
+    const [pedidoCliente, setPedidoCliente] = useState(context.pedidoCliente)
+    const [codigoTransportadora, setCodigoTRansportadora] = useState(context.codigoTransportadora)
+    const [valorFrete, setValorFrete] = useState(context.valorFrete)
+    const [objetivoTransferencia, setObjetivoTransferencia] = useState(context.codigoObjetivoTransferencia)
+    const [responsavelFrete, setResponsavelFrete] = useState(context.responsavelFrete)
+
 
     const handleChangeStatus = (event: React.ChangeEvent<HTMLInputElement>) => {
         setNameStatuss(event.target.value);
       }
 
-    const handleChangeCPFCNPJ = (event: React.ChangeEvent<HTMLInputElement>) =>{
-      let inputValue = event.target.value;
-      if (inputValue.length <= 14) {
-        inputValue = formatCPF(inputValue);
-      } else {
-        inputValue = formatCNPJ(inputValue);
-      }
 
-      setNameCPFCNPJ(inputValue);
-    }  
+      const handleChangeCPFCNPJ = (event: React.ChangeEvent<HTMLInputElement>) =>{
+        let inputValue = event.target.value;
+        if (inputValue.length <= 14) {
+          inputValue = formatCPF(inputValue);
+        } else {
+          inputValue = formatCNPJ(inputValue);
+        }
+  
+        setNameCPFCNPJ(inputValue);
+      }  
+
+      const handleOpenError = () => setOpenError(true);
+      const handleCloseError = () => setOpenError(false);
+
+
 
     const handleChangeFornecedor = (event: React.ChangeEvent<HTMLInputElement>) => {
       setNameFornecedor(event.target.value);
@@ -101,6 +141,7 @@ const RegisterBuy = () => {
         setNameObj(event.target.value);
       }
 
+
       const handleOpen = () => {
         let parameter = '';
         nameFornecedor != '' ?
@@ -114,7 +155,7 @@ const RegisterBuy = () => {
         })
          ) : 
         (parameter += codigo != '' ? `?codigoFornecedor=${codigo}` : '',
-        parameter += nameCPFCNPJ != ''? `&cnpjCpf=${nameCPFCNPJ}` : '',
+        parameter += nameCPFCNPJ != ''? `?cnpjCpf=${removerCaracteres(nameCPFCNPJ)}` : '',
          getFornecedor(parameter).then((response)=>{
           setTypeModal(2)
           setOpen(true);
@@ -163,6 +204,15 @@ const RegisterBuy = () => {
       }
 
       useEffect(() => {
+        
+        if(nameCPFCNPJ != ''){
+          if (nameCPFCNPJ <= 14) {
+            setNameCPFCNPJ(formatCPF(nameCPFCNPJ))
+          } else {
+            setNameCPFCNPJ(formatCNPJ(nameCPFCNPJ));
+          }
+        } 
+
         getAffiliated().then(
           (response) => {
             
@@ -190,21 +240,17 @@ const RegisterBuy = () => {
               setOper(response.data)
             })
             
-
-            let obj = [{
-              index: 0,
-              value: 'Compra Centralizada'
-            },{
+            setObj([{
               index: 1,
-              value: "Encomenda"
+              value: "Encomenda Compras"
             },{
               index: 2,
-              value: "Compras"
+              value: "Remanejamento de Estoque"
             },{
               index: 3,
-              value: "Estoque"
-            }]
-            setObj(obj)
+              value: "Compra Centralizada"
+            }])
+
             let prod = [{
               index: 0,
               value: 'Descrição'
@@ -216,8 +262,14 @@ const RegisterBuy = () => {
               value: "Código"
             }]
             setProd(prod)
+
+            getListTransporters().then((response:any)=>{
+              setTransportadora(response.data)
+            })
           },
-          );
+          ).catch((err) => {
+            <AlertError open={openError} handleClose={handleCloseError} />
+          });;
 
         
       }, []);
@@ -253,21 +305,21 @@ return (
 <Grid item xs={12} sm={1.5}>
  <CustomFormLabel htmlFor="standard-select-currency">OC</CustomFormLabel>
 
-<CustomTextField id="password" value={nameTitle} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
+<CustomTextField id="password" value={oc} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
 
   </Grid>
 
   <Grid item xs={12} sm={2}>
  <CustomFormLabel htmlFor="standard-select-currency">Data OC</CustomFormLabel>
 
-<CustomTextField id="password" value={nameTitle} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
+<CustomTextField id="password" value={dataOC} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
 
   </Grid>
 
   <Grid item xs={12} sm={2}>
  <CustomFormLabel htmlFor="standard-select-currency">Data Entrega</CustomFormLabel>
 
-<CustomTextField id="password" value={nameTitle} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
+<CustomTextField id="password" value={dataEntrega} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
 
   </Grid>
   <Grid item xs={12} sm={3}>
@@ -361,7 +413,7 @@ Cadastrar
  <CustomFormLabel htmlFor="standard-select-currency">Contatos</CustomFormLabel>
 
  <CustomSelect
-                      value={nameOper}
+                      value={eContato}
                       onChange={handleChangeOper}
                       fullWidth
                       variant="outlined"
@@ -377,30 +429,30 @@ Cadastrar
   <Grid item xs={12} sm={2}>
  <CustomFormLabel htmlFor="standard-select-currency">Pedido Cliente</CustomFormLabel>
 
-<CustomTextField id="password" value={nameTitle} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
+<CustomTextField id="password" value={pedidoCliente} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
 
   </Grid>
   <Grid item xs={12} sm={4}>
  <CustomFormLabel htmlFor="standard-select-currency">Transportadora</CustomFormLabel>
 
  <CustomSelect
-                      value={nameOper}
+                      value={codigoTransportadora}
                       onChange={handleChangeOper}
                       fullWidth
                       variant="outlined"
                     >
                       <MenuItem value="-1">{nameStatus[4]}</MenuItem>
-                      {/* {oper.map((option:any) => (
-                        <MenuItem key={option.index} value={option.index}>
-                          {option.value}
+                       {transportadora.map((option:any) => (
+                        <MenuItem key={option.codigoTerceiro} value={option.codigoTerceiro}>
+                          {option.nomeTerceiro}
                         </MenuItem>
-                      ))} */}
+                      ))} 
                     </CustomSelect>
   </Grid>
   <Grid item xs={12} sm={2}>
  <CustomFormLabel htmlFor="standard-select-currency">Valor Frete</CustomFormLabel>
 
-<CustomTextField id="password" value={nameTitle} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
+<CustomTextField id="password" value={valorFrete} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
 
   </Grid>
   <Grid item xs={12} sm={2} style={{position: 'relative', marginTop: '50px'}}>
@@ -413,14 +465,14 @@ Cadastrar
  <CustomFormLabel style={{position: 'relative', textAlign: 'center', top: '-25px'}} htmlFor="standard-select-currency">Resp. Frete</CustomFormLabel>
 <span style={{position: 'relative', width: '100%', left: '10%'}}>
  <Radio
-                    value={'teste'}
+                    value={responsavelFrete == 1}
                     style={{position: 'relative',top: '-30px'}}
                     name="radio-buttons"
                     inputProps={{ 'aria-label': 'tete' }}
                   />
 <label  style={{position: 'relative',top: '-30px'}}>Emitente</label>
 <Radio
-                    value={'teste'}
+                    value={responsavelFrete == 2}
                     style={{position: 'relative',top: '-30px', textAlign: 'right'}}
                     name="radio-buttons"
                     inputProps={{ 'aria-label': 'tete' }}
@@ -431,30 +483,30 @@ Cadastrar
   <Grid item xs={12} sm={2}>
  <CustomFormLabel htmlFor="standard-select-currency">Valor Seguro</CustomFormLabel>
 
-<CustomTextField id="password" value={nameTitle} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
+<CustomTextField id="password" value={valorSeguro} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
 
   </Grid>
   <Grid item xs={12} sm={3}>
  <CustomFormLabel htmlFor="standard-select-currency">Valor Outras Despesas</CustomFormLabel>
 
-<CustomTextField id="password" value={nameTitle} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
+<CustomTextField id="password" value={valorOutrasDespesas} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
 
-  </Grid>
+  </Grid> 
   <Grid item xs={12} sm={3}>
  <CustomFormLabel htmlFor="standard-select-currency">Objetivo Transferência</CustomFormLabel>
 
  <CustomSelect
-                      value={nameOper}
+                      value={objetivoTransferencia}
                       onChange={handleChangeOper}
                       fullWidth
                       variant="outlined"
                     >
-                      <MenuItem value="-1">{nameStatus[5]}</MenuItem>
-                      {/* {oper.map((option:any) => (
-                        <MenuItem key={option.index} value={option.index}>
-                          {option.value}
+                      <MenuItem value="0">{nameStatus[5]}</MenuItem>
+                      {obj.map((v:any) => (
+                        <MenuItem key={v.index} value={v.index}>
+                          {v.value}
                         </MenuItem>
-                      ))} */}
+                      ))} 
                     </CustomSelect>
   </Grid>
   </Grid>
@@ -463,17 +515,16 @@ Cadastrar
   <Button
                  variant="contained"
                  color="inherit"
-                 style={{height: '40px', width: '100px', fontWeight: 600}}
+                 style={{height: '40px', width: '100px', fontWeight: 600, backgroundColor: 'green'}}
                  sx={{ mr: 1 }}
                  type="submit"
-              
+                
                >
                  Salvar
                </Button> 
                <Button
                  variant="contained"
-                 color="primary"
-                 style={{height: '40px', width: '100px', fontWeight: 600}}
+                 style={{height: '40px', width: '100px', fontWeight: 600, backgroundColor: 'red'}}
                  sx={{ mr: 1 }}
                  type="submit"
               
@@ -483,7 +534,7 @@ Cadastrar
                <Button
                  variant="contained"
                  color="secondary"
-                 style={{height: '40px', width: '100px', fontWeight: 600}}
+                 style={{height: '40px', width: '100px', backgroundColor: 'gray', fontWeight: 600}}
                  sx={{ mr: 1 }}
                  type="submit"
                 onClick={()=>clean()}
@@ -513,7 +564,7 @@ Cadastrar
               </TableHead>
               <TableBody>
                 {valueModal.map((row:any, index:any) => (
-                  <TableRow key={index} style={{cursor: 'pointer'}} onClick={() => choose(row)}>
+                  <TableRow key={index} style={styles.base} onClick={() => choose(row)}>
                     <TableCell component="th" scope="row">
                       {typeModal == 1 ? row.nomeTerceiro: row.nomeFornecedor}
                     </TableCell>

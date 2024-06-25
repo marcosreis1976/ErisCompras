@@ -14,12 +14,26 @@ import {
   TableHead,
   TableCell,
   TableRow,
-  Typography
-} from '@mui/material'
+  Box, 
+  Modal,
+  Typography,
+  IconButton} from '@mui/material'
+  import CloseIcon from '@mui/icons-material/Close';
  
 import {getAffiliated, getListSellers, getListTransporters, itensRequest, itensStock, getOrderPanel, getListSummary} from "../../services/user.service"
-import CustomCheckbox from 'src/components/forms/theme-elements/CustomCheckbox';
-import PageContainer from 'src/components/container/PageContainer';
+
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 1000,
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
+};
+
 const SupervisorBuy = () => {
   const [nameTemplate, setNameTemplate] = useState<any>(-1);
     const [nameStatus] = useState(['Sem Plano Conta', 'Sem Centro Custo', 'Sem NCM', 'Sem CST', 'Sem Status', 'Sem Objetivo Transferência'])
@@ -36,6 +50,10 @@ const SupervisorBuy = () => {
     const [prod, setProd] = useState<any>([]);
     const [requests, setRequest] = useState([]);
     const [stocks, setStocks] = useState([]);
+    const [open, setOpen] = useState(false);
+
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => setOpen(false);
 
     const handleChangeStatus = (event: React.ChangeEvent<HTMLInputElement>) => {
         setNameStatuss(event.target.value);
@@ -263,65 +281,6 @@ const SupervisorBuy = () => {
   
       </Grid>
 
-      <Grid container spacing={1} style={{position: 'relative', top: '-50px'}}>
-          
-
-          <Grid item xs={12} sm={2} >
-         <CustomFormLabel  htmlFor="standard-select-currency">% Ipi</CustomFormLabel>
-        
-         <CustomTextField disabled={true} id="password" value={nameTitle} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
-          </Grid>
-          <Grid item xs={12} sm={2} >
-         <CustomFormLabel htmlFor="standard-select-currency">Base Ipi</CustomFormLabel>
-        
-         <CustomTextField disabled={true} id="password" value={nameTitle} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
-          </Grid>
-          <Grid item xs={12} sm={2} >
-         <CustomFormLabel htmlFor="standard-select-currency">Valor Ipi</CustomFormLabel>
-        
-         <CustomTextField disabled={true} id="password" value={nameTitle} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
-          </Grid>
-          <Grid item xs={12} sm={2} >
-         <CustomFormLabel htmlFor="standard-select-currency">% Icms</CustomFormLabel>
-        
-         <CustomTextField disabled={true} id="password" value={nameTitle} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
-          </Grid>
-          <Grid item xs={12} sm={2} >
-         <CustomFormLabel htmlFor="standard-select-currency">Base Icms</CustomFormLabel>
-        
-         <CustomTextField disabled={true} id="password" value={nameTitle} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
-          </Grid>
-          <Grid item xs={12} sm={2} >
-         <CustomFormLabel htmlFor="standard-select-currency">Valor Icms</CustomFormLabel>
-        
-         <CustomTextField disabled={true} id="password" value={nameTitle} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
-          </Grid>
-                    </Grid>
-        
-                    <Grid container spacing={1} style={{position: 'relative', top: '-50px'}}>
-                  
-        
-                  <Grid item xs={12} sm={2} >
-                 <CustomFormLabel htmlFor="standard-select-currency">% Iva</CustomFormLabel>
-                
-                 <CustomTextField disabled={true} id="password" value={nameTitle} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
-                  </Grid>
-                  <Grid item xs={12} sm={2} >
-                 <CustomFormLabel htmlFor="standard-select-currency">% Icms St</CustomFormLabel>
-                
-                 <CustomTextField disabled={true} id="password" value={nameTitle} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
-                  </Grid>
-                  <Grid item xs={12} sm={2} >
-                 <CustomFormLabel htmlFor="standard-select-currency">Base Icms St</CustomFormLabel>
-                
-                 <CustomTextField disabled={true} id="password" value={nameTitle} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
-                  </Grid>
-                  <Grid item xs={12} sm={2} >
-                 <CustomFormLabel htmlFor="standard-select-currency">Valor Icms St</CustomFormLabel>
-                
-                 <CustomTextField disabled={true} id="password" value={nameTitle} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
-                  </Grid>
-                            </Grid>
 
       
       <Grid container spacing={1} style={{position: 'relative',  top: '-20px'}}>
@@ -374,8 +333,99 @@ const SupervisorBuy = () => {
                >
                  Importar
                </Button>
+
+               <Button
+                 variant="contained"
+                 style={{height: '40px', width: '100px', fontWeight: 600, backgroundColor: 'brown'}}
+                 sx={{ mr: 1 }}
+                 type="submit"
+                 onClick={handleOpen}
+               >
+                 Impostos
+               </Button>
     </Grid>
       </Grid>
+
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="modal-title"
+        aria-describedby="modal-description"
+      >
+        <Box sx={style}>
+        <IconButton
+            aria-label="close"
+            onClick={handleClose}
+            sx={{
+              position: 'absolute',
+              right: 8,
+              top: 8,
+              color: (theme) => theme.palette.grey[500],
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        <Grid container spacing={1} style={{position: 'relative', top: '-0px'}}>
+          
+
+          <Grid item xs={12} sm={2} >
+         <CustomFormLabel  htmlFor="standard-select-currency">% Ipi</CustomFormLabel>
+        
+         <CustomTextField disabled={true} id="password" value={nameTitle} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
+          </Grid>
+          <Grid item xs={12} sm={2} >
+         <CustomFormLabel htmlFor="standard-select-currency">Base Ipi</CustomFormLabel>
+        
+         <CustomTextField disabled={true} id="password" value={nameTitle} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
+          </Grid>
+          <Grid item xs={12} sm={2} >
+         <CustomFormLabel htmlFor="standard-select-currency">Valor Ipi</CustomFormLabel>
+        
+         <CustomTextField disabled={true} id="password" value={nameTitle} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
+          </Grid>
+          <Grid item xs={12} sm={2} >
+         <CustomFormLabel htmlFor="standard-select-currency">% Icms</CustomFormLabel>
+        
+         <CustomTextField disabled={true} id="password" value={nameTitle} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
+          </Grid>
+          <Grid item xs={12} sm={2} >
+         <CustomFormLabel htmlFor="standard-select-currency">Base Icms</CustomFormLabel>
+        
+         <CustomTextField disabled={true} id="password" value={nameTitle} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
+          </Grid>
+          <Grid item xs={12} sm={2} >
+         <CustomFormLabel htmlFor="standard-select-currency">Valor Icms</CustomFormLabel>
+        
+         <CustomTextField disabled={true} id="password" value={nameTitle} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
+          </Grid>
+                    </Grid>
+        
+                    <Grid container spacing={1} style={{position: 'relative', top: '-0px'}}>
+                  
+        
+                  <Grid item xs={12} sm={2} >
+                 <CustomFormLabel htmlFor="standard-select-currency">% Iva</CustomFormLabel>
+                
+                 <CustomTextField disabled={true} id="password" value={nameTitle} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
+                  </Grid>
+                  <Grid item xs={12} sm={2} >
+                 <CustomFormLabel htmlFor="standard-select-currency">% Icms St</CustomFormLabel>
+                
+                 <CustomTextField disabled={true} id="password" value={nameTitle} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
+                  </Grid>
+                  <Grid item xs={12} sm={2} >
+                 <CustomFormLabel htmlFor="standard-select-currency">Base Icms St</CustomFormLabel>
+                
+                 <CustomTextField disabled={true} id="password" value={nameTitle} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
+                  </Grid>
+                  <Grid item xs={12} sm={2} >
+                 <CustomFormLabel htmlFor="standard-select-currency">Valor Icms St</CustomFormLabel>
+                
+                 <CustomTextField disabled={true} id="password" value={nameTitle} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
+                  </Grid>
+                            </Grid>
+        </Box>
+      </Modal>
     
         
           </>
