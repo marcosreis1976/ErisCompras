@@ -282,7 +282,7 @@ const SearchBuy = (props:any) => {
         parameter = parameter + `&numeroPagina=1&tamanhoPagina=5&usuario=${dataPage.user?.userName}`
         
         getConsultOCM(parameter).then((response)=>{
-          console.log(response.data)
+
           context.setValueTableMoc(response.data)
           setValueTable(response.data)
           setLoading(false)
@@ -437,7 +437,7 @@ const SearchBuy = (props:any) => {
 
         getProductCFOP(parameter).then((response:any)=>{
 
-          console.log(response.data)
+
 
           context.setObsFinanceira(response.data.pedido.observacaoFinanceiro)
           context.setCnpjCpf(response.data.pedido.cnpjCpf)

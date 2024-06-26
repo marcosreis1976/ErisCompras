@@ -58,7 +58,7 @@ const formatCNPJ = (value:any) => {
 };
 
 const removerCaracteres = (cpfOuCnpj:any) => {
-  console.log(cpfOuCnpj)
+
   return cpfOuCnpj.replace(/\D/g, '');
 }
 
@@ -151,7 +151,7 @@ const RegisterBuy = () => {
           setTypeModal(1)
           setOpen(true);
           setValueModal(response.data)
-          console.log(response.data)
+
           
         })
          ) : 
@@ -185,10 +185,10 @@ const RegisterBuy = () => {
 
         let parameter = '';
         typeModal == 1 ? (
-        console.log(row),
+
         parameter = `?codigoFornecedor=${row.codigoTerceiro}`,
         getFornecedor(parameter).then((response)=>{
-          console.log(response.data)
+
           setNameCPFCNPJ(response.data.fornecedor.cnpjCpf.length == 11 ? formatCPF(response.data.fornecedor.cnpjCpf) : formatCNPJ(response.data.fornecedor.cnpjCpf))
           setContatos(response.data.contatos)
           setCodigo(response.data.fornecedor.codigoFornecedor)
@@ -237,7 +237,7 @@ const RegisterBuy = () => {
             setStatus(status)
 
             getCFOP('?apenasEntrada=1').then((response)=>{
-              console.log(response.data)
+
               setOper(response.data)
             })
             
