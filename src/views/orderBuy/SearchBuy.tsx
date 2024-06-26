@@ -70,6 +70,7 @@ const formatCNPJ = (value:any) => {
 };
 
 const SearchBuy = (props:any) => {
+  const context = useContext(AppContext);
     const [nameTemplate, setNameTemplate] = useState<any>(-1);
     const [nameStatus] = useState(['Sem Filial', 'Sem Status', 'Sem Operação', 'Sem Objetivo', 'Sem Produto'])
     const [nameTitle, setNameTitle] = useState<any>('');
@@ -94,17 +95,18 @@ const SearchBuy = (props:any) => {
     const [prod, setProd] = useState<any>([]);
     const [requests, setRequest] = useState([]);
     const [stocks, setStocks] = useState([]);
-    const [valueTable, setValueTable] = useState([]);
+    const [valueTable, setValueTable] = useState(context.valueTableMoc);
     let answer = useContext(CartContext)
     const [loading, setLoading] = useState(false);
     const [dataPage, setDataPage] = useState(answer);
-    const [totalPages, setTotalPages] = useState(0);
+    const [totalPages, setTotalPages] = useState(context.totalPageMoc);
     const [parameter, setParameter] = useState('');
     const [filtroProduto, setFiltroProduto] = useState('')
-    const [page, setPage] = useState(0);
+    const [page, setPage] = useState(context.pageMoc);
     const [valueRadio, setValueRadio] = useState([false, false, false])
+    const [PedidoEscolhido, setPedidoEscolhido] = useState(context.pedidoEscolhidoMoc)
 
-    const context = useContext(AppContext);
+    
 
 
 
@@ -234,7 +236,7 @@ const SearchBuy = (props:any) => {
       }
 
       const searchOCM = () =>{
-        setValueTable([])
+        context.setValueTableMoc([])
         setTotalPages(1)
         setLoading(true)
 
@@ -280,7 +282,8 @@ const SearchBuy = (props:any) => {
         parameter = parameter + `&numeroPagina=1&tamanhoPagina=5&usuario=${dataPage.user?.userName}`
         
         getConsultOCM(parameter).then((response)=>{
-      
+          console.log(response.data)
+          context.setValueTableMoc(response.data)
           setValueTable(response.data)
           setLoading(false)
           setTotalPages(Math.ceil(response.data[0].totalRegistros / 7));
@@ -402,7 +405,7 @@ const SearchBuy = (props:any) => {
               let data = `${day}/${month}/${year} ${hours}`
               value.dataPedido = data
             })
-            setValueTable(response.data)
+            context.setValueTableMoc(response.data)
             // setAmount(response.data[0].totalRegistros)
             // setSearch(false)
             // setErros(false)
@@ -427,7 +430,6 @@ const SearchBuy = (props:any) => {
 
 
       const handleRowClick = (value:any) => {
-       
        
         const user = AuthService.getCurrentUser();
 
@@ -466,7 +468,12 @@ const SearchBuy = (props:any) => {
           context.setValorSeguro(response.data.pedido.valorSeguro)
           context.setValorTotal(response.data.pedido.valorTotal)
           context.setContatos(response.data.contatos)
+          context.setPageMoc(page)
+          context.setTotalPageMoc(totalPages)
+          context.setPedidoEscolhidoMoc(value.pedido)
         
+          props.atualizarMensagem(2);
+
         })
         // Adicione a lógica desejada aqui
     };
@@ -718,7 +725,7 @@ Limpar
             <TableRow 
             key={i} 
             onClick={() => handleRowClick(response)}
-            sx={{ cursor: 'pointer', '&:hover': { backgroundColor: 'gray' } }}>
+            sx={{ cursor: 'pointer', '&:hover': { backgroundColor: 'gray' }}}>
               <TableCell>
                 <Typography style={{ fontSize: '8pt', textAlign: 'center' }}>{response.filial}</Typography>
               </TableCell>

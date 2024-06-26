@@ -35,6 +35,11 @@ export const AppProvider: React.FC<any> = ({ children }) => {
   const [valorSeguro, setValorSeguro] = useState<string>('');
   const [valorTotal, setValorTotal] = useState<string>('');
   const [contatos, setContatos] = useState<any>([]);
+  const [valueTableMoc, setValueTableMoc] = useState<any>([]);
+  const [totalPageMoc, setTotalPageMoc] = useState<any>(0);
+  const [pageMoc, setPageMoc] = useState<any>(0);
+  const [pedidoEscolhidoMoc, setPedidoEscolhidoMoc] = useState<any>(0)
+
 
 
   return (
@@ -46,7 +51,9 @@ export const AppProvider: React.FC<any> = ({ children }) => {
       observacaoOC, setObservacaoOC, pedido, setPedido, pedidoCliente, setPedidoCliente, responsavelFrete, setResponsavelFrete,
       totalIcms, setTotalIcms, totalIcmsSt, setTotalIcmsSt, totalIpi, setTotalIpi, totalProdutos, setTotalProdutos,
       totalServicos, setTotalServicos, valorFrete, setValorFrete, valorOutrasDespesas, setValorOutrasDespesas, valorSeguro, setValorSeguro,
-      valorTotal, setValorTotal, contatos, setContatos
+      valorTotal, setValorTotal, contatos, setContatos, valueTableMoc, setValueTableMoc, totalPageMoc, setTotalPageMoc, pedidoEscolhidoMoc, setPedidoEscolhidoMoc,
+      
+      pageMoc, setPageMoc
      }}>
       {children}
     </AppContext.Provider>
