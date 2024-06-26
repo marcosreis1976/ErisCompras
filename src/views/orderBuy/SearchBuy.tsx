@@ -104,7 +104,7 @@ const SearchBuy = (props:any) => {
     const [filtroProduto, setFiltroProduto] = useState('')
     const [page, setPage] = useState(context.pageMoc);
     const [valueRadio, setValueRadio] = useState([false, false, false])
-    const [PedidoEscolhido, setPedidoEscolhido] = useState(context.pedidoEscolhidoMoc)
+
 
     
 
@@ -283,6 +283,7 @@ const SearchBuy = (props:any) => {
         
         getConsultOCM(parameter).then((response)=>{
 
+          console.log(response.data)
           context.setValueTableMoc(response.data)
           setValueTable(response.data)
           setLoading(false)
@@ -388,6 +389,7 @@ const SearchBuy = (props:any) => {
         let newPage = value
         event;
 
+        console.log('oi')
         setPage(value)
         // setErros(false)
         // setSearch(true)
@@ -405,7 +407,8 @@ const SearchBuy = (props:any) => {
               let data = `${day}/${month}/${year} ${hours}`
               value.dataPedido = data
             })
-            context.setValueTableMoc(response.data)
+            setValueTable(response.data)
+
             // setAmount(response.data[0].totalRegistros)
             // setSearch(false)
             // setErros(false)
