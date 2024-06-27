@@ -18,14 +18,37 @@ import {
   TableFooter,
   Pagination,
   Box,
-  CircularProgress
+  CircularProgress,
+  Tooltip,
+  Snackbar
 } from '@mui/material'
-import {getAffiliated, getConsultOCM, getProductCFOP, itensRequest, itensStock, getOrderPanel, getListSummary} from "../../services/user.service"
+import {getAffiliated, getConsultOCM, getProductCFOP, itensRequest, itensStock,  getCFOP, getOrderPanel, getListSummary} from "../../services/user.service"
 import OrderBuy from './index';
 import {CartContext} from "../../App"
 import BlankCard from 'src/components/shared/BlankCard';
 import * as AuthService from "../../services/auth.service";
 import AppContext from './AppContext';
+import Welcome from 'src/layouts/full/shared/welcome/Welcome';
+import { format, parseISO, isValid } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+
+
+const DateFormat = (date:any) => {
+  const dateObj = parseISO(date);
+
+  const formattedDate = format(dateObj, 'dd/MM/yyyy', { locale: ptBR });
+
+  return formattedDate;
+};
+
+const isValidISODate = (dateString:any) => {
+  const date = parseISO(dateString);
+    if(isValid(date)){
+      return DateFormat(dateString)
+     }else{
+      return dateString
+    }
+};
 
 
 const LoadingSplash = () => {
@@ -74,19 +97,19 @@ const SearchBuy = (props:any) => {
     const [nameTemplate, setNameTemplate] = useState<any>(-1);
     const [nameStatus] = useState(['Sem Filial', 'Sem Status', 'Sem Operação', 'Sem Objetivo', 'Sem Produto'])
     const [nameTitle, setNameTitle] = useState<any>('');
-    const [nameOC, setNameOC] = useState<any>('');
-    const [nameFornecedor, setNameFornecedor] = useState<any>('');
-    const [namecnpjCpf, setNamecnpjCpf] = useState<any>('');
+    const [nameOC, setNameOC] = useState<any>(context.pedido);
+    const [nameFornecedor, setNameFornecedor] = useState<any>(context.fornecedor);
+    const [namecnpjCpf, setNamecnpjCpf] = useState<any>(context.cnpjCpf);
     const [nameCFOP, setnameCFOP] = useState<any>('');
-    const [nameFilial, setNameFilial] = useState<any>(-1);
-    const [nameStatuss, setNameStatuss] = useState<any>(-1);
+    const [nameFilial, setNameFilial] = useState<any>(context.codigoFilial);
+    const [nameStatuss, setNameStatuss] = useState<any>(context.codigoStatus);
     const [nameOper, setNameOper] = useState<any>(-1);
-    const [nameObj, setNameObj] = useState<any>(-1);
-    const [nameUser, setNameUser] = useState<any>('');
-    const [namePedido, setNamePedido] = useState<any>('');
-    const [nameDataInicial, setNameDataInicial] = useState<any>('');
-    const [nameDataFinal, setNameDataFinal] = useState<any>('');
-    const [nameObs, setNameObs] = useState<any>('');
+    const [nameObj, setNameObj] = useState<any>(context.codigoObjetivoTransferencia);
+    const [nameUser, setNameUser] = useState<any>(context.nameUser);
+    const [namePedido, setNamePedido] = useState<any>(context.pedidoCliente);
+    const [nameDataInicial, setNameDataInicial] = useState<any>(isValidISODate(context.dataPedido));
+    const [nameDataFinal, setNameDataFinal] = useState<any>(isValidISODate(context.dataEntrega));
+    const [nameObs, setNameObs] = useState<any>(context.nameObs);
     const [nameProd, setNameProd] = useState<any>(-1);
     const [affiliated, setAffiliated] = useState([]);
     const [status, setStatus] = useState<any>([]);
@@ -101,10 +124,11 @@ const SearchBuy = (props:any) => {
     const [dataPage, setDataPage] = useState(answer);
     const [totalPages, setTotalPages] = useState(context.totalPageMoc);
     const [parameter, setParameter] = useState('');
-    const [filtroProduto, setFiltroProduto] = useState('')
+    const [filtroProduto, setFiltroProduto] = useState(context.filtroProduto)
     const [page, setPage] = useState(context.pageMoc);
     const [valueRadio, setValueRadio] = useState([false, false, false])
-
+    const [CFOP, setCFOP] = useState<any>(context.codigoCfop);
+    const [valueCFOP, setValueCFOP] = useState<any>([]);
 
     
 
@@ -213,13 +237,14 @@ const SearchBuy = (props:any) => {
       };
     
       const clean = () =>{
+        setCFOP(-1)
         setNameFilial(-1)
         setNameOC('')
         setNameFornecedor('')
         setNamecnpjCpf('')
         setNameStatuss(-1)
         setNameOper(-1)
-        setNameObj(-1)
+        setNameObj(0)
         setnameCFOP('')
         setNameUser('')
         setNamePedido('')
@@ -231,17 +256,25 @@ const SearchBuy = (props:any) => {
         });
         setFiltroProduto('')
 
+        context.setCodigoFilial(-1)
+        
 
         
       }
 
       const searchOCM = () =>{
         context.setValueTableMoc([])
+        setValueTable([])
         setTotalPages(1)
         setLoading(true)
 
         if (nameFilial == -1) {
           setLoading(false)
+          setValueTable([])
+          setPage(0)
+          setTotalPages(0)
+
+
           return
         }
 
@@ -283,6 +316,7 @@ const SearchBuy = (props:any) => {
         
         getConsultOCM(parameter).then((response)=>{
 
+          
           console.log(response.data)
           context.setValueTableMoc(response.data)
           setValueTable(response.data)
@@ -369,6 +403,18 @@ const SearchBuy = (props:any) => {
           },
           );
 
+          if(namecnpjCpf != ''){
+            if (namecnpjCpf <= 14) {
+              setNamecnpjCpf(formatCPF(namecnpjCpf))
+            } else {
+              setNamecnpjCpf(formatCNPJ(namecnpjCpf));
+            }
+          } 
+
+          getCFOP('?apenasEntrada=1').then((response:any)=>{
+
+            setValueCFOP(response.data)
+          })
         
       }, []);
 
@@ -440,6 +486,8 @@ const SearchBuy = (props:any) => {
 
         getProductCFOP(parameter).then((response:any)=>{
 
+          console.log(response.data)
+
 
 
           context.setObsFinanceira(response.data.pedido.observacaoFinanceiro)
@@ -474,12 +522,17 @@ const SearchBuy = (props:any) => {
           context.setPageMoc(page)
           context.setTotalPageMoc(totalPages)
           context.setPedidoEscolhidoMoc(value.pedido)
-        
+          context.setNameUser(nameUser)
+          context.setNameObs(nameObs)
+          context.setFiltroProduto(filtroProduto)
+          
           props.atualizarMensagem(2);
+  
 
         })
         // Adicione a lógica desejada aqui
     };
+
 
 return (
 <>
@@ -567,12 +620,25 @@ return (
   <Grid item xs={12} sm={2}>
  <CustomFormLabel htmlFor="standard-select-currency">CFOP</CustomFormLabel>
 
-<CustomTextField id="password" value={nameCFOP} onChange={handleChangeCFOP} type="text" variant="outlined" fullWidth />
+{/* <CustomTextField id="password" value={CFOP} onChange={handleChangeCFOP} type="text" variant="outlined" fullWidth /> */}
 
+<CustomSelect
+                      value={CFOP}
+                      onChange={handleChangeCFOP}
+                      fullWidth
+                      variant="outlined"
+                    >
+                      <MenuItem value="-1">{nameStatus[3]}</MenuItem> 
+                      {valueCFOP.map((option:any) => (
+                        <MenuItem key={option.cfopId} value={option.cfopId}>
+                        {option.cfopNome}
+                      </MenuItem>
+                      ))}
+                    </CustomSelect>
   </Grid>
 
   <Grid item xs={12} sm={2} >
- <CustomFormLabel htmlFor="standard-select-currency">Objetivo</CustomFormLabel>
+ <CustomFormLabel htmlFor="standard-select-currency">Objetivo </CustomFormLabel>
 
  <CustomSelect
                       value={nameObj}
@@ -580,7 +646,7 @@ return (
                       fullWidth
                       variant="outlined"
                     >
-                      <MenuItem value="-1">{nameStatus[3]}</MenuItem> 
+                      <MenuItem value="0">{nameStatus[3]}</MenuItem> 
                       {obj.map((option:any) => (
                          <MenuItem key={option.index} value={option.index}>
                          {option.value}
@@ -790,6 +856,7 @@ Limpar
 Sem registros
 </Alert> 
 : null}
+
   </>
 
 );

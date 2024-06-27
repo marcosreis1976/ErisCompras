@@ -16,6 +16,26 @@ import {getAffiliated,  itensRequest, itensStock, getCFOP, getNameFornecedor, ge
 import CustomCheckbox from 'src/components/forms/theme-elements/CustomCheckbox';
 import AlertError from 'src/components/alertError/alertError';
 import AppContext from './AppContext';
+import { format, parseISO, isValid } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+
+
+const DateFormat = (date:any) => {
+  const dateObj = parseISO(date);
+
+  const formattedDate = format(dateObj, 'dd/MM/yyyy', { locale: ptBR });
+
+  return formattedDate;
+};
+
+const isValidISODate = (dateString:any) => {
+  const date = parseISO(dateString);
+    if(isValid(date)){
+      return DateFormat(dateString)
+     }else{
+      return dateString
+    }
+};
 
 const styles = {
   base: {
@@ -75,8 +95,8 @@ const RegisterBuy = () => {
     const [nameFornecedor, setNameFornecedor] = useState<any>(context.fornecedor);
     const [nameFilial, setNameFilial] = useState<any>(context.codigoFilial);
     const [oc, setOC] = useState<any>(context.pedido)
-    const [dataEntrega, setDataEntrega] = useState<any>(context.dataPedido)
-    const [dataOC, setDataOC] = useState<any>(context.dataPedido)
+    const [dataEntrega, setDataEntrega] = useState<any>(isValidISODate(context.dataEntrega))
+    const [dataOC, setDataOC] = useState<any>(isValidISODate(context.dataPedido))
     const [codigo, setCodigo] = useState<any>(context.codigoFornecedor);
     const [nameStatuss, setNameStatuss] = useState<any>(context.codigoStatus);
     const [nameOper, setNameOper] = useState<any>(context.codigoCfop);
@@ -104,6 +124,7 @@ const RegisterBuy = () => {
     const [objetivoTransferencia, setObjetivoTransferencia] = useState(context.codigoObjetivoTransferencia)
     const [responsavelFrete, setResponsavelFrete] = useState(context.responsavelFrete)
     const [valueRadio, setValueRadio] = useState([false, false, false])
+    
 
 
     const handleChangeStatus = (event: React.ChangeEvent<HTMLInputElement>) => {
