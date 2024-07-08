@@ -21,6 +21,7 @@ import {
   import AppContext from './AppContext';
  
 import {getCentroCusto, getPlanoContas, getListarCST, getListarNCM, getBuscarOcItem} from "../../services/user.service"
+import { Height } from '@mui/icons-material';
  
 
 
@@ -107,12 +108,13 @@ const SupervisorBuy = () => {
            context.setPercentualIva(response.data.percentualIva)
            context.setTributárioID(response.data.tributarioid)
            context.setClasfiscid(response.data.clasfiscid)
-  
+           context.setPercentualIcmsSt(response.data.percentualIcmsSt)
         })
 
       }
 
       const handleRowClick = (index:any, item:any) => {
+
         context.setSelectedRow(index);
         getOc(item);
       };
@@ -144,6 +146,7 @@ const SupervisorBuy = () => {
         context.setTributárioID(null)
         context.setSelectedRow(null);
         context.setClasfiscid(null)
+        context.setPercentualIcmsSt('')
       }
 
       const style = {
@@ -156,6 +159,7 @@ const SupervisorBuy = () => {
         bgcolor: 'background.paper',
         boxShadow: 24,
         p: 4,
+        height: '420px'
       };
 
     return (
@@ -215,10 +219,10 @@ const SupervisorBuy = () => {
           <TableCell style={{ textAlign: 'center', fontSize: '8pt', padding: '4px 8px' }}>{item.descricaoProduto}</TableCell>
           <TableCell style={{ textAlign: 'center', fontSize: '8pt', padding: '4px 8px' }}>{item.quantidade}</TableCell>
           <TableCell style={{ textAlign: 'center', fontSize: '8pt', padding: '4px 8px' }}>{item.unidadeMedida}</TableCell>
-          <TableCell style={{ textAlign: 'center', fontSize: '8pt', padding: '4px 8px' }}>{item.precoTabela}</TableCell>
+          <TableCell style={{ textAlign: 'center', fontSize: '8pt', padding: '4px 8px' }}>{item.precoTabela.toFixed(2)}</TableCell>
           <TableCell style={{ textAlign: 'center', fontSize: '8pt', padding: '4px 8px' }}>{item.percentualDesconto}</TableCell>
-          <TableCell style={{ textAlign: 'center', fontSize: '8pt', padding: '4px 8px' }}>{item.precoLiquido}</TableCell>
-          <TableCell style={{ textAlign: 'center', fontSize: '8pt', padding: '4px 8px' }}>{item.totalItem}</TableCell>
+          <TableCell style={{ textAlign: 'center', fontSize: '8pt', padding: '4px 8px' }}>{item.precoLiquido.toFixed(2)}</TableCell>
+          <TableCell style={{ textAlign: 'center', fontSize: '8pt', padding: '4px 8px' }}>{item.totalItem.toFixed(2)}</TableCell>
           <TableCell style={{ textAlign: 'center', fontSize: '8pt', padding: '4px 8px' }}>{item.statusItem}</TableCell>
         </TableRow>
           ))}
@@ -449,7 +453,7 @@ const SupervisorBuy = () => {
           <CloseIcon />
         </IconButton>
         <Grid container spacing={2}>
-          <Grid item xs={12} sm={3}>
+          <Grid item xs={12} sm={6}>
             <CustomFormLabel htmlFor="standard-select-currency">CST</CustomFormLabel>
             <CustomSelect
               value={context.tributárioID}
@@ -465,24 +469,25 @@ const SupervisorBuy = () => {
               ))}
             </CustomSelect>
           </Grid>
-          <Grid item xs={12} sm={3}>
+          <Grid item xs={12} sm={2}>
             <CustomFormLabel htmlFor="standard-select-currency">% Icms</CustomFormLabel>
             <CustomTextField disabled={true} value={context.percentualIcms} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
           </Grid>
-          <Grid item xs={12} sm={3}>
+          <Grid item xs={12} sm={2}>
             <CustomFormLabel htmlFor="standard-select-currency">Base Icms</CustomFormLabel>
             <CustomTextField disabled={true} value={context.baseIcms} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
           </Grid>
-          <Grid item xs={12} sm={3}>
+          <Grid item xs={12} sm={2}>
             <CustomFormLabel htmlFor="standard-select-currency">Valor Icms</CustomFormLabel>
             <CustomTextField disabled={true} value={context.valorIcms} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
           </Grid>
         </Grid>
 
-        <Grid container spacing={2} mt={2}>
-          <Grid item xs={12} sm={3}>
+        <Grid container spacing={2} mt={2} style={{position: 'relative', top: '-30px'}}>
+          <Grid item xs={12} sm={6}>
             <CustomFormLabel htmlFor="standard-select-currency">NCM</CustomFormLabel>
             <CustomSelect
+         
               value={context.clasfiscid}
               onChange={handleChangeFilial}
               fullWidth
@@ -496,24 +501,24 @@ const SupervisorBuy = () => {
               ))}
             </CustomSelect>
           </Grid>
-          <Grid item xs={12} sm={3}>
+          <Grid item xs={12} sm={2}>
             <CustomFormLabel htmlFor="standard-select-currency">% Ipi</CustomFormLabel>
             <CustomTextField disabled={true} value={context.percentualIpi} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
           </Grid>
-          <Grid item xs={12} sm={3}>
+          <Grid item xs={12} sm={2}>
             <CustomFormLabel htmlFor="standard-select-currency">% Base Ipi</CustomFormLabel>
             <CustomTextField disabled={true} value={context.baseIpi} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
           </Grid>
-          <Grid item xs={12} sm={3}>
+          <Grid item xs={12} sm={2}>
             <CustomFormLabel htmlFor="standard-select-currency">Valor Ipi</CustomFormLabel>
             <CustomTextField disabled={true} value={context.valorIpi} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
           </Grid>
         </Grid>
 
-        <Grid container spacing={2} mt={2}>
+        <Grid container spacing={2} mt={2} style={{position: 'relative', top: '-60px'}}>
           <Grid item xs={12} sm={3}>
             <CustomFormLabel htmlFor="standard-select-currency">ST</CustomFormLabel>
-            <CustomTextField disabled={true} value={context.nameTitle} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
+            <CustomTextField disabled={true} value={context.percentualIcmsSt} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
           </Grid>
           <Grid item xs={12} sm={3}>
             <CustomFormLabel htmlFor="standard-select-currency">% Iva</CustomFormLabel>
@@ -530,7 +535,15 @@ const SupervisorBuy = () => {
           </Grid>
         </Grid>
 
-        <Grid container spacing={2} mt={3} justifyContent="center">
+        <Grid container spacing={2} mt={3} justifyContent="center" style={{position: 'relative', top: '-50px'}}>
+        <Button
+            variant="contained"
+            color="inherit"
+            style={{ height: '40px', width: '100px', fontWeight: 600, backgroundColor: 'green' }}
+            sx={{ mr: 1 }}
+          >
+            Salvar
+          </Button>
           <Button
             variant="contained"
             style={{ height: '40px', width: '100px', fontWeight: 600, backgroundColor: 'red' }}
@@ -539,14 +552,7 @@ const SupervisorBuy = () => {
           >
             Sair
           </Button>
-          <Button
-            variant="contained"
-            color="inherit"
-            style={{ height: '40px', width: '100px', fontWeight: 600, backgroundColor: 'green' }}
-            sx={{ mr: 1 }}
-          >
-            Salvar
-          </Button>
+
         </Grid>
       </Box>
     </Modal>

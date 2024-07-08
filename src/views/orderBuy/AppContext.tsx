@@ -45,6 +45,7 @@ export const AppProvider: React.FC<any> = ({ children }) => {
   const [nameUser, setNameUser] = useState<any>('');
   const [nameObs, setNameObs] = useState<any>('');
   const [filtroProduto, setFiltroProduto] = useState<any>('');
+  const [percentualIcmsSt, setPercentualIcmsSt]= useState<any>('');
   const [valueRadio, setValueRadio] = useState<any>([false, false, false])
 
 
@@ -103,7 +104,8 @@ export const AppProvider: React.FC<any> = ({ children }) => {
       quantidadeLiberada, setQuantidadeLiberada, quantidadeRecebida, setQuantidadeRecebida, quantidadeCancelada, setQuantidadeCancelada, planoContas, setPlanoContas,
       centroCusto, setCentroCusto, CST, setCST, baseIcms, setBaseIcms, valorIcms, setValorIcms, valorIpi, setValorIpi, valorIcmsSt, setValorIcmsSt,
       percentualIpi, setPercentualIpi, baseIpi, setBaseIpi, baseIcmsSt, setBaseIcmsSt, percentualIcms, setPercentualIcms, percentualIva, setPercentualIva,
-      NCM, setNCM, selectedRow, setSelectedRow, tributárioID, setTributárioID, clasfiscid, setClasfiscid
+      NCM, setNCM, selectedRow, setSelectedRow, tributárioID, setTributárioID, clasfiscid, setClasfiscid,
+      percentualIcmsSt, setPercentualIcmsSt
      }}>
       {children}
     </AppContext.Provider>

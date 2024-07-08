@@ -41,12 +41,12 @@ const PriceBuy = () => {
   const [tipoCobranca, setTipoCobranca] = useState<any>([]);
   const [localCobranca, setLocalCobranca] = useState<any>([]);
   const [itens, setItens] = useState<any>([]);
-  // const [parcelas] = useState<any>(context.parcelas);
+  const [parcelas] = useState<any>(context.parcelas);
   
 
   const {valorTotal, 
     totalIcms, totalIcmsSt, totalIpi, totalServicos,totalProdutos, valorOutrasDespesas,
-    parcelas
+    // parcelas
 
   } = context;
 
@@ -74,6 +74,7 @@ const PriceBuy = () => {
     {name: 'I.P.I.:', value: ''},{name: 'I.C.M.S.:', value: ''},{name: 'I.C.M.S.ST:', value: ''},{name: 'Total:', value: ''},
     ])
 
+    console.log(parcelas)
     getCondPagamento().then((response:any)=>{
       setCodPagamento(response.data)
       getTipoCobrança().then((response:any)=>{
@@ -84,7 +85,6 @@ const PriceBuy = () => {
       })
     })
 
-    console.log(context.parcelas)
 
   },[]);
 
@@ -200,9 +200,9 @@ style={{position: 'relative', top: '-35px'}}
          {parcelas.map((value:any) => (
           <TableRow >
             <TableCell style={{textAlign: 'center'}}>{isValidISODate(value.vencimento)}</TableCell>
-            <TableCell style={{textAlign: 'center'}}>{value.numeroDias}</TableCell>
+            <TableCell style={{textAlign: 'center'}}>{value.numeroDias.toFixed(2)}</TableCell>
             <TableCell style={{textAlign: 'center'}}>{value.percentualParcela}%</TableCell>
-            <TableCell style={{textAlign: 'center'}}>{value.valorParcela}</TableCell>
+            <TableCell style={{textAlign: 'center'}}>{value.valorParcela.toFixed(2)}</TableCell>
           </TableRow>
            ))}
         </TableBody>
