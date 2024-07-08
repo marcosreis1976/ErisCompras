@@ -22,7 +22,7 @@ import {
   Tooltip,
   Snackbar
 } from '@mui/material'
-import {getAffiliated, getConsultOCM, getProductCFOP, itensRequest, itensStock,  getCFOP, getOrderPanel, getListSummary} from "../../services/user.service"
+import {getAffiliated, getConsultOCM, getProductCFOP, itensRequest, itensStock,  getCFOP, getBuscarOcParcelamento, getBuscarOcItens} from "../../services/user.service"
 import OrderBuy from './index';
 import {CartContext} from "../../App"
 import BlankCard from 'src/components/shared/BlankCard';
@@ -53,7 +53,7 @@ const isValidISODate = (dateString:any) => {
 
 const LoadingSplash = () => {
   return (
-      <Box 
+      <Box
           sx={{
               display: 'flex',
               alignItems: 'center',
@@ -130,7 +130,8 @@ const SearchBuy = (props:any) => {
     const [CFOP, setCFOP] = useState<any>(context.codigoCfop);
     const [valueCFOP, setValueCFOP] = useState<any>([]);
 
-    
+
+
 
 
 
@@ -171,7 +172,7 @@ const SearchBuy = (props:any) => {
       const handleChangeCFOP = (event: React.ChangeEvent<HTMLInputElement>) => {
         setnameCFOP(event.target.value);
       }
-    
+
       const handleChangeTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
         setNameTitle(event.target.value);
       }
@@ -194,10 +195,10 @@ const SearchBuy = (props:any) => {
 
       const handleChangeDataInicial = (event: React.ChangeEvent<HTMLInputElement>) => {
         let input = event.target.value;
-    
+
         // Remove all non-digit characters
         input = input.replace(/\D/g, '');
-    
+
         // Format the input as MM/DD/YYYY
         if (input.length > 2) {
           input = input.slice(0, 2) + '/' + input.slice(2);
@@ -208,16 +209,16 @@ const SearchBuy = (props:any) => {
         if (input.length > 10) {
           input = input.slice(0, 10);
         }
-     
+
         setNameDataInicial(input);
       };
-    
+
       const handleChangeDataFinal = (event: React.ChangeEvent<HTMLInputElement>) => {
         let input = event.target.value;
-    
+
         // Remove all non-digit characters
         input = input.replace(/\D/g, '');
-    
+
         // Format the input as MM/DD/YYYY
         if (input.length > 2) {
           input = input.slice(0, 2) + '/' + input.slice(2);
@@ -228,14 +229,14 @@ const SearchBuy = (props:any) => {
         if (input.length > 10) {
           input = input.slice(0, 10);
         }
-    
+
         setNameDataFinal(input);
       };
 
       const handleChangeObs = (event: React.ChangeEvent<HTMLInputElement>) => {
         setNameObs(event.target.value);
       };
-    
+
       const clean = () =>{
         setCFOP(-1)
         setNameFilial(-1)
@@ -256,10 +257,49 @@ const SearchBuy = (props:any) => {
         });
         setFiltroProduto('')
 
-        context.setCodigoFilial(-1)
-        
+          context.setObsFinanceira('')
+          context.setCnpjCpf('')
+          context.setCodigoCfop(-1)
+          context.setCodigoFilial(-1)
+          context.setCodigoFornecedor('')
+          context.setCodigoLocalCobranca('')
+          context.setCodigoObjetivoTransferencia(-1)
+          context.setCodigoStatus(-1)
+          context.setCodigoTipoCobranca('')
+          context.setDataEntrega(-1)
+          context.setDataPedido('')
+          context.setFornecedor('')
+          context.setIsFreteEmbutido('')
+          context.setNomeContato('')
+          context.setObservacaoFinanceiro('')
+          context.setObservacaoOC('')
+          context.setPedido('')
+          context.setPedidoCliente('')
+          context.setResponsavelFrete('')
+          context.setTotalIcms('')
+          context.setTotalIcmsSt('')
+          context.setTotalIpi('')
+          context.setTotalProdutos('')
+          context.setTotalServicos('')
+          context.setValorFrete('')
+          context.setValorOutrasDespesas('')
+          context.setValorSeguro('')
+          context.setValorTotal('')
+          context.setContatos('')
+          context.setPageMoc(0)
+          context.setTotalPageMoc(0)
+          context.setPedidoEscolhidoMoc(0)
+          context.setNameUser('')
+          context.setNameObs('')
+          context.setFiltroProduto('')
+          context.setParcelas([])
+          context.setListaOc([])
+          context.setValueTableMoc([])
+          setValueTable([])
+          context.setCodigoFilial(-1)
 
-        
+
+
       }
 
       const searchOCM = () =>{
@@ -301,7 +341,7 @@ const SearchBuy = (props:any) => {
           let mes = partesData[1]
           let ano = partesData[2]
           parameter = parameter + `&dataInicial=${mes}/${dia}/${ano}`
-        } 
+        }
         if(nameDataFinal != ''){
           let partesData = nameDataFinal.split('/')
           let dia = partesData[0]
@@ -313,10 +353,10 @@ const SearchBuy = (props:any) => {
         setPage(1)
         setParameter(parameter)
         parameter = parameter + `&numeroPagina=1&tamanhoPagina=5&usuario=${dataPage.user?.userName}`
-        
+
         getConsultOCM(parameter).then((response)=>{
 
-          
+
           console.log(response.data)
           context.setValueTableMoc(response.data)
           setValueTable(response.data)
@@ -334,7 +374,7 @@ const SearchBuy = (props:any) => {
           //   setErros(true)
           //   setErrorMessage('Nenhum registro encontrado!')
           console.log('error')
-  
+
         })
 
       }
@@ -346,7 +386,7 @@ const SearchBuy = (props:any) => {
 
             setRequest(itensRequest)
             setStocks(itensStock)
-            
+
             response.data.length > 0 ? setAffiliated(response.data): null
             let status = [{
               index: 0,
@@ -409,13 +449,13 @@ const SearchBuy = (props:any) => {
             } else {
               setNamecnpjCpf(formatCNPJ(namecnpjCpf));
             }
-          } 
+          }
 
           getCFOP('?apenasEntrada=1').then((response:any)=>{
 
             setValueCFOP(response.data)
           })
-        
+
       }, []);
 
       const chooseRadio = (index:any) =>{
@@ -440,12 +480,12 @@ const SearchBuy = (props:any) => {
         // setErros(false)
         // setSearch(true)
         // setCurrentPage(newPage);
-    
+
         let answer = parameter + `&numeroPagina=${value}&tamanhoPagina=5&usuario=${dataPage.user?.userName}`
         getConsultOCM(answer).then(
           (response) => {
             response.data.map((value: any) => {
-     
+
               let year = value.dataPedido.substring(0, 4);
               let month = value.dataPedido.substring(5, 7);
               let day = value.dataPedido.substring(8, 10);
@@ -472,14 +512,14 @@ const SearchBuy = (props:any) => {
           //     setSearch(false)
           //     setErros(true)
           //     setErrorMessage('Nenhum registro encontrado!')
-    
+
           // }
         );
       };
 
 
       const handleRowClick = (value:any) => {
-       
+
         const user = AuthService.getCurrentUser();
 
         let parameter = `?pedido=${value.pedido}&usuario=${user.userName}`
@@ -525,9 +565,18 @@ const SearchBuy = (props:any) => {
           context.setNameUser(nameUser)
           context.setNameObs(nameObs)
           context.setFiltroProduto(filtroProduto)
-          
-          props.atualizarMensagem(2);
-  
+
+          getBuscarOcParcelamento(`pedido=${value.pedido}&usuario=${user.userName}`).then((response:any)=>{
+            context.setParcelas(response.data.parcelas)
+            getBuscarOcItens(`pedido=${value.pedido}&usuario=${user.userName}`).then((response)=>{
+              context.setListaOc(response.data.itens)
+              props.atualizarMensagem(2);
+            })
+
+          })
+
+          // props.atualizarMensagem(2);
+
 
         })
         // Adicione a lógica desejada aqui
@@ -613,7 +662,7 @@ return (
                     </CustomSelect>
 
   </Grid>
- 
+
  </Grid>
   <Grid container spacing={1} style={{position: 'relative', top: '-40px'}}>
 
@@ -628,7 +677,7 @@ return (
                       fullWidth
                       variant="outlined"
                     >
-                      <MenuItem value="-1">{nameStatus[3]}</MenuItem> 
+                      <MenuItem value="-1">{nameStatus[3]}</MenuItem>
                       {valueCFOP.map((option:any) => (
                         <MenuItem key={option.cfopId} value={option.cfopId}>
                         {option.cfopNome}
@@ -646,7 +695,7 @@ return (
                       fullWidth
                       variant="outlined"
                     >
-                      <MenuItem value="0">{nameStatus[3]}</MenuItem> 
+                      <MenuItem value="0">{nameStatus[3]}</MenuItem>
                       {obj.map((option:any) => (
                          <MenuItem key={option.index} value={option.index}>
                          {option.value}
@@ -678,8 +727,8 @@ return (
 <CustomTextField id="password" value={nameDataFinal} onChange={handleChangeDataFinal} type="text" variant="outlined" fullWidth />
 
   </Grid>
- 
-</Grid> 
+
+</Grid>
  <Grid container spacing={1} style={{position: 'relative', top: '-40px'}}>
 <Grid item xs={12} sm={3}>
  <CustomFormLabel htmlFor="standard-select-currency">Observação</CustomFormLabel>
@@ -689,8 +738,8 @@ return (
   </Grid>
 
   <Grid item xs={12} sm={4} style={{position: 'relative', marginTop: '0px', border: '1px solid lightgray', height: '85px', top: '22px', borderRadius: '10px'}}>
- 
- <Radio  
+
+ <Radio
                     onClick={()=>chooseRadio(0)}
                     checked={valueRadio[0]}
                     value={'teste'}
@@ -786,13 +835,13 @@ Limpar
             </TableCell>
             <TableCell sx={{ padding: '4px 8px', textAlign: 'center' }}>
               <Typography style={{ fontSize: '9pt', fontWeight: '600', textAlign: 'center', }}>STATUS</Typography>
-            </TableCell> 
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {valueTable.map((response: any, i:any) => (
-            <TableRow 
-            key={i} 
+            <TableRow
+            key={i}
             onClick={() => handleRowClick(response)}
             sx={{ cursor: 'pointer', '&:hover': { backgroundColor: 'gray' }}}>
               <TableCell>
@@ -829,14 +878,14 @@ Limpar
         </TableFooter>
       </Table>
       <Pagination style={{ position: 'relative', top: '2px', marginBottom: '10px' }}
-      count={totalPages} 
-      page={page} 
+      count={totalPages}
+      page={page}
       onChange={handlePageChange}
       boundaryCount={2} // exibe sempre 2 botões de cada lado do atual
       showFirstButton
       showLastButton
       siblingCount={2} // exibe sempre 2 botões de cada lado do atual
-      
+
       color="primary" /> <p>Página atual: {page}</p>
 
     </>
@@ -844,22 +893,22 @@ Limpar
   : null}
   {loading == true ?  <LoadingSplash /> : false}
 
- 
+
 </TableContainer>
 
 </BlankCard>
 
- </Grid> 
+ </Grid>
  {valueTable.length == 0 && loading == false && totalPages > 0?
 
 <Alert variant="outlined"  severity="error">
 Sem registros
-</Alert> 
+</Alert>
 : null}
 
   </>
 
 );
 };
-  
+
 export default SearchBuy;

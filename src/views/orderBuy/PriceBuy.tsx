@@ -26,6 +26,8 @@ import CustomCheckbox from 'src/components/forms/theme-elements/CustomCheckbox';
 import { relative } from 'path';
 import {getCondPagamento, getTipoCobrança, getLocalCobrança} from "../../services/user.service"
 import AppContext from './AppContext';
+import { format, parseISO, isValid } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 const PriceBuy = () => {
   const context = useContext(AppContext);
@@ -39,14 +41,32 @@ const PriceBuy = () => {
   const [tipoCobranca, setTipoCobranca] = useState<any>([]);
   const [localCobranca, setLocalCobranca] = useState<any>([]);
   const [itens, setItens] = useState<any>([]);
+  // const [parcelas] = useState<any>(context.parcelas);
   
 
   const {valorTotal, 
-    totalIcms, totalIcmsSt, totalIpi, totalServicos,totalProdutos, valorOutrasDespesas
-
+    totalIcms, totalIcmsSt, totalIpi, totalServicos,totalProdutos, valorOutrasDespesas,
+    parcelas
 
   } = context;
 
+
+  const DateFormat = (date:any) => {
+    const dateObj = parseISO(date);
+  
+    const formattedDate = format(dateObj, 'dd/MM/yyyy', { locale: ptBR });
+  
+    return formattedDate;
+  };
+
+  const isValidISODate = (dateString:any) => {
+    const date = parseISO(dateString);
+      if(isValid(date)){
+        return DateFormat(dateString)
+       }else{
+        return dateString
+      }
+  };
   
 
   useEffect(() => {
@@ -63,6 +83,8 @@ const PriceBuy = () => {
         })
       })
     })
+
+    console.log(context.parcelas)
 
   },[]);
 
@@ -175,24 +197,14 @@ style={{position: 'relative', top: '-35px'}}
            </TableRow>
         </TableBody>
          <TableBody>
+         {parcelas.map((value:any) => (
           <TableRow >
-            <TableCell style={{textAlign: 'center'}}>10/12/2024</TableCell>
-            <TableCell style={{textAlign: 'center'}}>10</TableCell>
-            <TableCell style={{textAlign: 'center'}}>5%</TableCell>
-            <TableCell style={{textAlign: 'center'}}>130,45</TableCell>
+            <TableCell style={{textAlign: 'center'}}>{isValidISODate(value.vencimento)}</TableCell>
+            <TableCell style={{textAlign: 'center'}}>{value.numeroDias}</TableCell>
+            <TableCell style={{textAlign: 'center'}}>{value.percentualParcela}%</TableCell>
+            <TableCell style={{textAlign: 'center'}}>{value.valorParcela}</TableCell>
           </TableRow>
-          <TableRow >
-            <TableCell style={{textAlign: 'center'}}>11/12/2024</TableCell>
-            <TableCell style={{textAlign: 'center'}}>11</TableCell>
-            <TableCell style={{textAlign: 'center'}}>1%</TableCell>
-            <TableCell style={{textAlign: 'center'}}>89,90</TableCell>
-          </TableRow>
-          <TableRow >
-            <TableCell style={{textAlign: 'center'}}>12/12/2024</TableCell>
-            <TableCell style={{textAlign: 'center'}}>12</TableCell>
-            <TableCell style={{textAlign: 'center'}}>8%</TableCell>
-            <TableCell style={{textAlign: 'center'}}>12,50</TableCell>
-          </TableRow>
+           ))}
         </TableBody>
         
       </Table>
