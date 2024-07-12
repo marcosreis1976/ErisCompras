@@ -57,6 +57,7 @@ export const AppProvider: React.FC<any> = ({ children }) => {
   const [unidadeMedida, setUnidadeMedida] = useState<any>('');
   const [codigoPlanoDeContas, setCodigoPlanoDeContas] = useState(-1);
   const [codigoCentroCusto, setCodigoCentroCusto] = useState<any>(0);
+  const [tipoStatus, setTipoStatus] = useState<any>(0);
   const [quantidade, setQuantidade] = useState<any>('');
   const [precoTabela, setPrecoTabela] = useState<any>('');
   const [percentualDesconto, setPercentualDesconto] = useState<any>('');
@@ -105,7 +106,7 @@ export const AppProvider: React.FC<any> = ({ children }) => {
       centroCusto, setCentroCusto, CST, setCST, baseIcms, setBaseIcms, valorIcms, setValorIcms, valorIpi, setValorIpi, valorIcmsSt, setValorIcmsSt,
       percentualIpi, setPercentualIpi, baseIpi, setBaseIpi, baseIcmsSt, setBaseIcmsSt, percentualIcms, setPercentualIcms, percentualIva, setPercentualIva,
       NCM, setNCM, selectedRow, setSelectedRow, tributárioID, setTributárioID, clasfiscid, setClasfiscid,
-      percentualIcmsSt, setPercentualIcmsSt
+      percentualIcmsSt, setPercentualIcmsSt, tipoStatus, setTipoStatus
      }}>
       {children}
     </AppContext.Provider>

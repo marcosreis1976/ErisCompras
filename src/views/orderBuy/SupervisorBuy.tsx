@@ -23,7 +23,18 @@ import {
 import {getCentroCusto, getPlanoContas, getListarCST, getListarNCM, getBuscarOcItem} from "../../services/user.service"
 import { Height } from '@mui/icons-material';
  
+const FormatarMoeda = ( valor:any) => {
+  const valorFormatado = new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  }).format(valor);
 
+  return valorFormatado;
+};
+
+const calcularPorcentagem = (valor:any) => {
+  return `${valor} %`;
+};
 
 const SupervisorBuy = () => {
   const context = useContext(AppContext);
@@ -39,7 +50,7 @@ const SupervisorBuy = () => {
     const [dataPage, setDataPage] = useState(answer);
 
     const [itens] = useState<any>([{id: '0', value: 'Bloqueado'},
-      {id: '1', value: 'Compra'},
+      {id: '2', value: 'Compra'},
       {id: '3', value: 'Liberado'},
       {id: '4', value: 'Recebido'}]) 
 
@@ -83,32 +94,38 @@ const SupervisorBuy = () => {
       const getOc = (item:any) =>{
 
         getBuscarOcItem(`pedido=${item.pedido}&itemPedido=${item.itemPedido}&usuario=${dataPage.user?.userName}`).then((response:any)=>{
-           context.setItem(response.data.itemPedido)
+          console.log(response.data) 
+          context.setItem(response.data.itemPedido)
            context.setCodigoStatus2(response.data.codigoProduto)
            context.setCodigoProduto(response.data.eanProduto)
            context.setDescricaoProduto(response.data.descricaoProduto)
            context.setUnidadeMedida(response.data.unidadeMedida)
            context.setCodigoPlanoDeContas(response.data.codigoPlanoDeContas)
-           context.setCodigoCentroCusto(response.data.codigoCentroCusto)
+           context.setCodigoCentroCusto(
+          typeof response.data.codigoCentroCusto === 'number' && !Number.isNaN(response.data.codigoCentroCusto) 
+          ? response.data.codigoCentroCusto 
+          : 0
+          );
            context.setQuantidade(response.data.quantidade)
-           context.setPrecoTabela(response.data.precoTabela)
-           context.setPercentualDesconto(response.data.percentualDesconto)
-           context.setPrecoLiquido(response.data.precoLiquido)
+           context.setPrecoTabela(FormatarMoeda(response.data.precoTabela))
+           context.setPercentualDesconto(calcularPorcentagem(response.data.percentualDesconto))
+           context.setPrecoLiquido(FormatarMoeda(response.data.precoLiquido))
            context.setQuantidadeLiberada(response.data.quantidadeLiberada)
            context.setQuantidadeCancelada(response.data.quantidadeCancelada)
            context.setQuantidadeRecebida(response.data.quantidadeRecebida)
            context.setBaseIcms(response.data.baseIcms)
-           context.setValorIcms(response.data.valorIcms)
-           context.setValorIpi(response.data.valorIpi)
+           context.setValorIcms(FormatarMoeda(response.data.valorIcms))
+           context.setValorIpi(FormatarMoeda(response.data.valorIpi))
            context.setValorIcmsSt(response.data.valorIcmsSt)
-           context.setPercentualIpi(response.data.percentualIpi)
-           context.setBaseIpi(response.data.baseIpi)
+           context.setPercentualIpi(calcularPorcentagem(response.data.percentualIpi))
+           context.setBaseIpi(calcularPorcentagem(response.data.baseIpi))
            context.setBaseIcmsSt(response.data.baseIcmsSt)
-           context.setPercentualIcms(response.data.percentualIcms)
-           context.setPercentualIva(response.data.percentualIva)
+           context.setPercentualIcms(calcularPorcentagem(response.data.percentualIcms))
+           context.setPercentualIva(calcularPorcentagem(response.data.percentualIva))
            context.setTributárioID(response.data.tributarioid)
            context.setClasfiscid(response.data.clasfiscid)
-           context.setPercentualIcmsSt(response.data.percentualIcmsSt)
+           context.setPercentualIcmsSt(calcularPorcentagem(response.data.percentualIcmsSt))
+           context.setTipoStatus(response.data.codigoStatus)
         })
 
       }
@@ -147,6 +164,7 @@ const SupervisorBuy = () => {
         context.setSelectedRow(null);
         context.setClasfiscid(null)
         context.setPercentualIcmsSt('')
+        context.setTipoStatus(0)
       }
 
       const style = {
@@ -236,7 +254,7 @@ const SupervisorBuy = () => {
     <Grid item xs={12} sm={1}>
  <CustomFormLabel htmlFor="standard-select-currency">Item</CustomFormLabel>
 
-<CustomTextField id="password" value={context.item} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
+<CustomTextField id="password" disabled={true} value={context.item} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
 
   </Grid>
     <Grid item xs={12} sm={1.5}>
@@ -349,7 +367,7 @@ const SupervisorBuy = () => {
  <CustomFormLabel htmlFor="standard-select-currency">Status</CustomFormLabel>
 
  <CustomSelect
-                      value={context.codigoStatus}
+                      value={context.tipoStatus}
                       onChange={handleChangeFilial}
                       fullWidth
                       variant="outlined"
@@ -471,15 +489,15 @@ const SupervisorBuy = () => {
           </Grid>
           <Grid item xs={12} sm={2}>
             <CustomFormLabel htmlFor="standard-select-currency">% Icms</CustomFormLabel>
-            <CustomTextField disabled={true} value={context.percentualIcms} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
+            <CustomTextField  value={context.percentualIcms} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
           </Grid>
           <Grid item xs={12} sm={2}>
             <CustomFormLabel htmlFor="standard-select-currency">Base Icms</CustomFormLabel>
-            <CustomTextField disabled={true} value={context.baseIcms} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
+            <CustomTextField  value={context.baseIcms} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
           </Grid>
           <Grid item xs={12} sm={2}>
             <CustomFormLabel htmlFor="standard-select-currency">Valor Icms</CustomFormLabel>
-            <CustomTextField disabled={true} value={context.valorIcms} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
+            <CustomTextField  value={context.valorIcms} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
           </Grid>
         </Grid>
 
@@ -503,35 +521,35 @@ const SupervisorBuy = () => {
           </Grid>
           <Grid item xs={12} sm={2}>
             <CustomFormLabel htmlFor="standard-select-currency">% Ipi</CustomFormLabel>
-            <CustomTextField disabled={true} value={context.percentualIpi} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
+            <CustomTextField  value={context.percentualIpi} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
           </Grid>
           <Grid item xs={12} sm={2}>
             <CustomFormLabel htmlFor="standard-select-currency">% Base Ipi</CustomFormLabel>
-            <CustomTextField disabled={true} value={context.baseIpi} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
+            <CustomTextField  value={context.baseIpi} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
           </Grid>
           <Grid item xs={12} sm={2}>
             <CustomFormLabel htmlFor="standard-select-currency">Valor Ipi</CustomFormLabel>
-            <CustomTextField disabled={true} value={context.valorIpi} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
+            <CustomTextField  value={context.valorIpi} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
           </Grid>
         </Grid>
 
         <Grid container spacing={2} mt={2} style={{position: 'relative', top: '-60px'}}>
           <Grid item xs={12} sm={3}>
             <CustomFormLabel htmlFor="standard-select-currency">ST</CustomFormLabel>
-            <CustomTextField disabled={true} value={context.percentualIcmsSt} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
+            <CustomTextField  value={context.percentualIcmsSt} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
           </Grid>
           <Grid item xs={12} sm={3}>
             <CustomFormLabel htmlFor="standard-select-currency">% Iva</CustomFormLabel>
-            <CustomTextField disabled={true} value={context.percentualIva} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
+            <CustomTextField  value={context.percentualIva} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
           </Grid>
 
           <Grid item xs={12} sm={3}>
             <CustomFormLabel htmlFor="standard-select-currency">Base Icms St</CustomFormLabel>
-            <CustomTextField disabled={true} value={context.baseIcmsSt} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
+            <CustomTextField  value={context.baseIcmsSt} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
           </Grid>
           <Grid item xs={12} sm={3}>
             <CustomFormLabel htmlFor="standard-select-currency">Valor Icms St</CustomFormLabel>
-            <CustomTextField disabled={true} value={context.valorIcmsSt} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
+            <CustomTextField  value={context.valorIcmsSt} onChange={handleChangeTitle} type="text" variant="outlined" fullWidth />
           </Grid>
         </Grid>
 
